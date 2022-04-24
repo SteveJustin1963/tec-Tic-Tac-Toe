@@ -1,6 +1,11 @@
 # Tic-Tac-Toe / Naughts and Crosses 
   
 Now in MINT code...
+- you vs the computer, c vs c
+- computer can have best or next leagl move or a mix of both
+- 
+
+
 ```
 >1 2 3
 >4 5 6
