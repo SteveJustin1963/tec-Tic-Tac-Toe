@@ -17,7 +17,7 @@ Now in MINT code...
 >4 O 6
 >7 8 9
 
->!
+>1
 
 >X X O
 >4 O 6
