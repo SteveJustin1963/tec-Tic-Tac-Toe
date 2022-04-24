@@ -1,4 +1,4 @@
-# tec-Tac-Toe / Naughts and Crosses 
+# Tic-Tac-Toe / Naughts and Crosses 
   
 Now in MINT code...
 ```
