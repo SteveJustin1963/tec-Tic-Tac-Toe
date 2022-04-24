@@ -2,7 +2,7 @@
   
 Now in MINT code...
 - you vs the computer, c vs c
-- computer can have best or next leagl move or a mix of both
+- computer can have best or next legal move or a mix of both
 - 
 
 
