@@ -1,7 +1,7 @@
 # tec-Tac-Toe / Naughts and Crosses 
   
 Now in MINT code...
-
+```
 >1 2 3
 >4 5 6
 >7 8 9
@@ -17,7 +17,7 @@ Now in MINT code...
 >X X O
 >4 O 6
 >7 8 9
-
+```
 
 
 
