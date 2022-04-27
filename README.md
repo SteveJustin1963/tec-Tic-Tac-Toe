@@ -36,6 +36,7 @@ Now in MINT code...
 - pokies 3 wheel
 - lotto
 - minesweeper
+- nim
 - 
 
 
