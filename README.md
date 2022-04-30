@@ -33,7 +33,7 @@ algorithm for playing tic tac toe:
 5. if all the cells on the grid are filled and neither player has won, the game ends in a drawwrite me a program to do this
 
 Here is pseudocode for the algorithm above:
-
+```
 // start with an empty 3x3 grid
 grid = [['', '', ''], ['', '', ''], ['', '', '']];
 
@@ -59,6 +59,7 @@ if (grid[0][0] != '' && grid[0][1] != '' && grid[0][2] != '' &&
     grid[2][0] != '' && grid[2][1] != '' && grid[2][2] != '') {
   print('The game ends in a draw.');
 }
+```
 
 ### Iterate
 - dice
