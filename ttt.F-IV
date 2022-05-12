@@ -1,0 +1,28 @@
+! fortran IV
+
+program tictactoe
+implicit none
+character(len=1) :: grid(3,3)
+
+grid = reshape(['','','','','','','','',''], (/3,3/))
+
+grid(1,1) = 'X'
+grid(2,2) = 'O'
+
+if (grid(1,1) == 'X' .and. grid(1,2) == 'X' .and. grid(1,3) == 'X') then
+  print *, 'Player 1 wins!'
+end if
+
+if (grid(2,1) == 'O' .and. grid(2,2) == 'O' .and. grid(2,3) == 'O') then
+  print *, 'Player 2 wins!'
+end if
+
+if (grid(1,1) /= '' .and. grid(1,2) /= '' .and. grid(1,3) /= '' .and.
+    grid(2,1) /= '' .and. grid(2,2) /= '' .and. grid(2,3) /= '' .and.
+    grid(3,1) /= '' .and. grid(3,2) /= '' .and. grid(3,3) /= '') then
+  print *, 'The game ends in a draw.'
+end if
+
+end program tictactoe
+
+ 
