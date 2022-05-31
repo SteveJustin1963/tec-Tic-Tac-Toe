@@ -28,7 +28,7 @@ Now in MINT code...
 
 ### Iterate
 - dice
-- chekers
+- checkers
 - chess
 - bridge
 - go
