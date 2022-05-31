@@ -1,4 +1,4 @@
-# Tic-Tac-Toe / Naughts and Crosses 
+# Tic-Tac-Toe / Naughts and Crosses  
   
 Now in MINT code...
 - you vs the computer, c vs c
