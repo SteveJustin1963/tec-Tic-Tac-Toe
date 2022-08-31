@@ -6,7 +6,7 @@
 // 4. if either player has three of their symbols in a row horizontally, vertically, or diagonally, that player wins the game
 // 5. if all the cells on the grid are filled and neither player has won, the game ends in a drawwrite me a program to do this
 
-// Here is pseudocode for the algorithm above:
+ 
  
 // start with an empty 3x3 grid
 grid = [['', '', ''], ['', '', ''], ['', '', '']];
