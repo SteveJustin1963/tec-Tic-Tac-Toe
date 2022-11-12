@@ -4,7 +4,7 @@
 // 2. player 1 chooses a position on the grid by putting an 'X' in one of the empty cells
 // 3. player 2 chooses a position on the grid by putting an 'O' in one of the empty cells
 // 4. if either player has three of their symbols in a row horizontally, vertically, or diagonally, that player wins the game
-// 5. if all the cells on the grid are filled and neither player has won, the game ends in a drawwrite me a program to do this
+// 5. if all the cells on the grid are filled and neither player has won, the game ends in a draw 
 
  
  
