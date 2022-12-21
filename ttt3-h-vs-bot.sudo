@@ -1,0 +1,65 @@
+it allows the human player to make their own moves by prompting for input,
+while the bot player's moves are determined by the get_bot_move function. 
+You will need to add code to the get_bot_move function to determine the best move
+for the bot based on the current state of the board.
+////////////////
+
+
+
+board = [[" "," "," "],
+         [" "," "," "],
+         [" "," "," "]]
+human = True
+game_over = False
+
+while not game_over:
+  if human:
+    player = "X"
+    print(board)
+    row = input("Enter row (0, 1, 2) for player " + player + ": ")
+    col = input("Enter column (0, 1, 2) for player " + player + ": ")
+  else:
+    player = "O"
+    row, col = get_bot_move(board)
+    
+  if board[row][col] == " ":
+    board[row][col] = player
+  else:
+    print("That space is already occupied. Please try again.")
+    continue
+  
+  if check_for_winner(board, player):
+    print(player + " wins!")
+    game_over = True
+  elif check_for_tie(board):
+    print("It's a tie!")
+    game_over = True
+    
+  human = not human
+
+def get_bot_move(board):
+  # add code here to determine the best move for the bot
+  # return the row and column of the move as a tuple (row, col)
+
+def check_for_winner(board, player):
+  # check rows
+  for i in range(3):
+    if board[i][0] == player and board[i][1] == player and board[i][2] == player:
+      return True
+  # check columns
+  for i in range(3):
+    if board[0][i] == player and board[1][i] == player and board[2][i] == player:
+      return True
+  # check diagonals
+  if board[0][0] == player and board[1][1] == player and board[2][2] == player:
+    return True
+  if board[0][2] == player and board[1][1] == player and board[2][0] == player:
+    return True
+  return False
+
+def check_for_tie(board):
+  for i in range(3):
+    for j in range(3):
+      if board[i][j] == " ":
+        return False
+  return True
