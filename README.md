@@ -43,4 +43,5 @@ Now in MINT code...
 ### Ref
 - https://en.wikipedia.org/wiki/Tic-tac-toe
 - https://rosettacode.org/wiki/Tic-tac-toe
-- 
+- https://www.quora.com/What-is-the-most-simple-least-lines-of-code-implementation-of-a-tic-tac-toe-game-you-could-write-in-the-C-programming-language
+
