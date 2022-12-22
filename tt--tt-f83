@@ -198,3 +198,95 @@ game  \ Start the game
 
 
 ===============
+
+sudo
+
+// Draws the current state of the game board
+drawBoard()
+  print 0 1 2 \n
+  print 3 4 5 \n
+  print 6 7 8 \n
+
+// Displays the current state of the game board
+displayBoard(value)
+  if (value == 0)
+    print X
+  else if (value == 1)
+    print O
+  else
+    print " "
+
+// Displays the game board and prompts for the next move
+display()
+  drawBoard()
+  for (i = 0; i < 9; i++)
+    displayBoard(board[i])
+  print \n
+  print "Enter your move: "
+
+// Prompts the player for their next move and returns it
+getMove()
+  print "Enter your move: "
+  input = get input
+  if (isNumber(input))
+    if (input < 9 && board[input] == 2)
+      board[input] = turn
+      turn++
+      return 1
+    else
+      print "Invalid move\n"
+      return 0
+  else
+    print "Invalid input\n"
+    return 0
+
+
+// Returns 0 if no winner, 1 if X wins, 2 if O wins
+checkWinner()
+  // Check for horizontal X wins
+  if (board[0] == 0 && board[1] == 0 && board[2] == 0)
+    return 1
+  // Check for vertical X wins
+  else if (board[0] == 0 && board[3] == 0 && board[6] == 0)
+    return 1
+  // Check for diagonal X wins
+  else if (board[0] == 0 && board[4] == 0 && board[8] == 0)
+    return 1
+  // Check for horizontal O wins
+  else if (board[0] == 1 && board[1] == 1 && board[2] == 1)
+    return 2
+  // Check for vertical O wins
+  else if (board[0] == 1 && board[3] == 1 && board[6] == 1)
+    return 2
+  // Check for diagonal O wins
+  else if (board[0] == 1 && board[4] == 1 && board[8] == 1)
+    return 2
+  else
+    return 0
+
+// Main game loop
+game()
+  board[] = {2, 2, 2, 2, 2, 2, 2, 2, 2}
+  turn = 0
+  while (true)
+    if (turn == 0)
+      // Computer's turn
+      // Select a random unoccupied space for the computer's move
+      for (i = 0; i < 9; i++)
+        if (board[i] == 2)
+          board[i] = turn
+          turn++
+          break
+    else
+      // Player's turn
+      getMove()  // Prompts the player for their next move and returns it
+      turn++  // Increment the turn counter
+    display()  // Display the game board and prompt for the next move
+    if (checkWinner() != 0)
+      if (checkWinner() == 1)
+        print "X wins!\n"
+      else
+        print "O wins!\n"
+      break  // End the game
+      
+ ==================
