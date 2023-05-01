@@ -62,6 +62,54 @@ def has_winner(board):
     return True
   return False
 ```
+## forth code
+```
+: board 9 cells 0 ;
+: player 1 ;
+
+: get-player-move ( -- move )
+  begin
+    key ( move )
+    dup board [ move 1- ] @ 0= if drop exit then
+    cr ." Space already occupied, try again."
+  again ;
+
+: has-winner ( board -- flag )
+  board 3 /mod ( row )
+  0 board 3 * + board 3 * + board [
+  board 3 * 1+ board 3 * 1+ board [
+  board 3 * 2+ board 3 * 2+ board [ =
+  if drop true exit then
+
+  0 board 3 + board 6 + board [
+  board 1+ 3 + board 4 + board [
+  board 2+ 3 + board 5 + board [ =
+  if drop true exit then
+
+  board 4 board [ board 8 board [ =
+  if drop true exit then
+  board 4 board [ board 6 board [ =
+  if drop true exit then
+  false ;
+
+: play ( -- )
+  9 0 do
+    player @ 1 = if
+      get-player-move ( move )
+      10 player @ emit
+    else
+      ( computer move )
+    then
+    player @ board move 1- swap !
+    board has-winner if
+      ." Player " . ." wins!" cr
+      exit
+    then
+    3 player @ - player !
+  loop
+  cr ." Draw." ;
+
+```
 
 
 
