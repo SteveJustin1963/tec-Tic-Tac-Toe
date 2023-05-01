@@ -1,7 +1,7 @@
 # Tic-Tac-Toe / Naughts and Crosses  
   
 Now in MINT code...
-- you vs the computer, c vs c
+- you vs the computer
 - computer can have best or next legal move or a mix of both
 - 
 
