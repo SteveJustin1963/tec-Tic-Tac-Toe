@@ -1,9 +1,10 @@
+variable board   \ Array to store the game board
+
 : A   \ Start the game
-  variable board   \ Array to store the game board
   9 0 do           \ Initialize the game board to all blank spaces
     2 i board + c!
   loop
-  variable turn    \ 0 for X, 1 for O
+  0 value turn    \ 0 for X, 1 for O
 
   : check-win ( c -- f )
     locals| player |
@@ -19,7 +20,7 @@
   ;
 
   begin
-    turn @ 0 = if   \ Computer's turn
+    turn 0 = if   \ Computer's turn
       \ Select a random unoccupied space for the computer's move
       board @ 9 0 do
         dup board + c@ 2 = if
@@ -27,14 +28,14 @@
         then
       loop
       board + c! drop
-      turn 1+
+      1 turn +!  \ Increment turn
     else            \ Player's turn
       cr ." Enter your move (0-8): " 
       accept dup number? if
         dup 9 < if
           dup board + c@ 2 = if
             board + c! drop
-            turn 1+
+            1 turn +!  \ Increment turn
           else
             ." Invalid move" cr
           then
