@@ -1,58 +1,62 @@
-: draw-board  ( -- )  \ Draws the current state of the game board
-  ." 0 1 2" cr
-  ." 3 4 5" cr
-  ." 6 7 8" cr
-;
-
-: display-board  ( n -- ) \ Displays the current state of the game board
-  dup 0 = if emit #254 then  \ Draw an X if the value is 0
-  dup 1 = if emit #1 then   \ Draw an O if the value is 1
-  dup 2 = if emit #32 then  \ Draw a blank space if the value is 2
-  drop
-;
-
-: display  ( -- ) \ Displays the game board and prompts for the next move
-  draw-board
-  0 9 1 do
-    i board + c@ display-board
-    i 2 mod 0= if cr then
+\ A. Main game loop
+: A   \ Start the game
+  variable board   \ Array to store the game board
+  9 0 do           \ Initialize the game board to all blank spaces
+    2 i board + c!
   loop
-  cr
-  ." Enter your move: "
-;
-
-: get-move  ( -- n ) \ Prompts the player for their next move and returns it
-  cr ." Enter your move: " accept dup number? if
-    dup 9 < if
-      dup board + c@ = 2 = if
-        board + c! drop
-        1
+  variable turn    \ 0 for X, 1 for O
+  begin
+    turn @ 0 = if   \ Computer's turn
+      \ Select a random unoccupied space for the computer's move
+      board @ 9 0 do
+        dup board + c@ 2 = if
+          drop i exit
+        then
+      loop
+      board + c! drop
+      turn 1+
+    else            \ Player's turn
+      cr "Enter your move (0-8): " . 
+      accept dup number? if
+        dup 9 < if
+          dup board + c@ = 2 = if
+            board + c! drop
+            turn 1+
+          else
+            "Invalid move" cr
+          then
+        else
+          "Invalid move" cr
+        then
       else
-        ." Invalid move" cr
-        0
+        "Invalid input" cr
       then
-    else
-      ." Invalid move" cr
-      0
     then
-  else
-    ." Invalid input" cr
-    0
-  then
-;
-
-: check-winner  ( -- n ) \ Returns 0 if no winner, 1 if X wins, 2 if O wins
-  0 1 2 board + c@ = 0 =  \ Check for horizontal X wins
-  3 4 5 board + c@ = 0 = and 
-  6 7 8 board + c@ = 0 = and or
-  0 3 6 board + c@ = 0 =  \ Check for vertical X wins
-  1 4 7 board + c@ = 0 = and
-  2 5 8 board + c@ = 0 = and or or
-  0 4 8 board + c@ = 0 =  \ Check for diagonal X wins
-  2 4 6 board + c@ = 0 = and or
-  if
-    drop 1
-  else
+    \ Display the game board and prompt for the next move
+    cr
+    0 1 2 cr
+    3 4 5 cr
+    6 7 8 cr
+    0 9 do
+      i board + c@ dup
+      0 = if emit #254 then
+      1 = if emit #1 then
+      2 = if emit #32 then
+      drop
+    loop
+    cr
+    \ Check if there is a winner
+    0 1 2 board + c@ = 0 =  \ Check for horizontal X wins
+    3 4 5 board + c@ = 0 = and 
+    6 7 8 board + c@ = 0 = and or
+    0 3 6 board + c@ = 0 =  \ Check for vertical X wins
+    1 4 7 board + c@ = 0 = and
+    2 5 8 board + c@ = 0 = and or or
+    0 4 8 board + c@ = 0 =  \ Check for diagonal X wins
+    2 4 6 board + c@ = 0 = and or
+    if
+      cr "X wins!" cr exit  \ End the game
+    then
     0 1 2 board + c@ = 1 =  \ Check for horizontal O wins
     3 4 5 board + c@ = 1 = and
     6 7 8 board + c@ = 1 = and or
@@ -62,12 +66,8 @@
     0 4 8 board + c@ = 1 =  \ Check for diagonal O wins
     2 4 6 board + c@ = 1 = and or
     if
-      drop 2
-    else
-      0
+      cr "O wins!" cr exit  \ End the game
     then
-  then
-;
+  again ;
 
-: game  ( -- ) \ Main game loop
-  create board  9 allot \ Array to store the
+A   \ Start the game
