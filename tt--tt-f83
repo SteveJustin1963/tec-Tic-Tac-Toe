@@ -1,10 +1,23 @@
-\ A. Main game loop
 : A   \ Start the game
   variable board   \ Array to store the game board
   9 0 do           \ Initialize the game board to all blank spaces
     2 i board + c!
   loop
   variable turn    \ 0 for X, 1 for O
+
+  : check-win ( c -- f )
+    locals| player |
+    0 1 2 0 3 6 0 4 8 2 4 6
+    3 4 5 1 4 7 0 0 0 0 0 0
+    do
+      player 0
+      3 0 do
+        i j + board + c@ = over and
+        loop
+      swap drop nip
+    +loop
+  ;
+
   begin
     turn @ 0 = if   \ Computer's turn
       \ Select a random unoccupied space for the computer's move
@@ -16,20 +29,20 @@
       board + c! drop
       turn 1+
     else            \ Player's turn
-      cr "Enter your move (0-8): " . 
+      cr ." Enter your move (0-8): " 
       accept dup number? if
         dup 9 < if
-          dup board + c@ = 2 = if
+          dup board + c@ 2 = if
             board + c! drop
             turn 1+
           else
-            "Invalid move" cr
+            ." Invalid move" cr
           then
         else
-          "Invalid move" cr
+          ." Invalid move" cr
         then
       else
-        "Invalid input" cr
+        ." Invalid input" cr
       then
     then
     \ Display the game board and prompt for the next move
@@ -46,27 +59,12 @@
     loop
     cr
     \ Check if there is a winner
-    0 1 2 board + c@ = 0 =  \ Check for horizontal X wins
-    3 4 5 board + c@ = 0 = and 
-    6 7 8 board + c@ = 0 = and or
-    0 3 6 board + c@ = 0 =  \ Check for vertical X wins
-    1 4 7 board + c@ = 0 = and
-    2 5 8 board + c@ = 0 = and or or
-    0 4 8 board + c@ = 0 =  \ Check for diagonal X wins
-    2 4 6 board + c@ = 0 = and or
-    if
-      cr "X wins!" cr exit  \ End the game
-    then
-    0 1 2 board + c@ = 1 =  \ Check for horizontal O wins
-    3 4 5 board + c@ = 1 = and
-    6 7 8 board + c@ = 1 = and or
-    0 3 6 board + c@ = 1 =  \ Check for vertical O wins
-    1 4 7 board + c@ = 1 = and
-    2 5 8 board + c@ = 1 = and or or
-    0 4 8 board + c@ = 1 =  \ Check for diagonal O wins
-    2 4 6 board + c@ = 1 = and or
-    if
-      cr "O wins!" cr exit  \ End the game
+    turn @ check-win if
+      turn @ 0 = if
+        cr ." X wins!" cr exit  \ End the game
+      else
+        cr ." O wins!" cr exit  \ End the game
+      then
     then
   again ;
 
