@@ -1,45 +1,47 @@
-: draw-board  \ Draws the current state of the game board
-  0 1 2 cr
-  3 4 5 cr
-  6 7 8 cr
+: draw-board  ( -- )  \ Draws the current state of the game board
+  ." 0 1 2" cr
+  ." 3 4 5" cr
+  ." 6 7 8" cr
 ;
 
-: display-board  \ Displays the current state of the game board
+: display-board  ( n -- ) \ Displays the current state of the game board
   dup 0 = if emit #254 then  \ Draw an X if the value is 0
   dup 1 = if emit #1 then   \ Draw an O if the value is 1
   dup 2 = if emit #32 then  \ Draw a blank space if the value is 2
   drop
 ;
 
-: display  \ Displays the game board and prompts for the next move
+: display  ( -- ) \ Displays the game board and prompts for the next move
   draw-board
-  0 9 [ display-board ] for
+  0 9 1 do
+    i board + c@ display-board
+    i 2 mod 0= if cr then
+  loop
   cr
-  "Enter your move: " .
+  ." Enter your move: "
 ;
 
-: get-move  \ Prompts the player for their next move and returns it
-  cr "Enter your move: " . 
-  accept dup number? if
+: get-move  ( -- n ) \ Prompts the player for their next move and returns it
+  cr ." Enter your move: " accept dup number? if
     dup 9 < if
       dup board + c@ = 2 = if
         board + c! drop
         1
       else
-        "Invalid move" cr
+        ." Invalid move" cr
         0
       then
     else
-      "Invalid move" cr
+      ." Invalid move" cr
       0
     then
   else
-    "Invalid input" cr
+    ." Invalid input" cr
     0
   then
 ;
 
-: check-winner  \ Returns 0 if no winner, 1 if X wins, 2 if O wins
+: check-winner  ( -- n ) \ Returns 0 if no winner, 1 if X wins, 2 if O wins
   0 1 2 board + c@ = 0 =  \ Check for horizontal X wins
   3 4 5 board + c@ = 0 = and 
   6 7 8 board + c@ = 0 = and or
@@ -67,30 +69,5 @@
   then
 ;
 
-: game  \ Main game loop
-  variable board  \ Array to store the game board
-  9 [ 2 ] times  \ Initialize the game board to all blank spaces
-  variable turn  \ 0 for X, 1 for O
-  begin
-    turn @ 0 = if  \ Computer's turn
-      \ Select a random unoccupied space for the computer's move
-      board @ 9 [ dup board + c@ 2 = if drop then ] for
-      dup if
-        board + c! drop
-        turn 1+
-      then
-    else  \ Bot's turn
-      get
-      turn 1+  \ Increment the turn counter
-    then
-    display  \ Display the game board and prompt for the next move
-    check-winner  \ Check if there is a winner
-    dup if
-      dup 1 = if "X wins!" cr then
-      dup 2 = if "O wins!" cr then
-      drop exit  \ End the game
-    then
-  again
-;
-
-game  \ Start the game
+: game  ( -- ) \ Main game loop
+  create board  9 allot \ Array to store the
