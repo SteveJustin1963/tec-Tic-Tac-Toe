@@ -65,4 +65,62 @@ CREATE WINNING-CONFIGURATIONS
   0 ;
   ```
   
-  
+  ## another
+  ```
+  : RESET-BOARD  ( -- )
+  3 3 DO  3 0 DO  I J 2DUP  B!  LOOP  LOOP  ;
+
+: PRINT-BOARD  ( -- )
+  ." TIC-TAC-TOE" CR ." ------------" CR
+  CR ." 1 | 2 | 3" CR ." ---------" CR
+  ." 4 | 5 | 6" CR ." ---------" CR
+  ." 7 | 8 | 9" CR CR ;
+
+: PROMPT-MOVE  ( -- n )
+  CR ." ENTER YOUR MOVE (1-9)." CR
+  KEY DUP 48 - DUP 9 > SWAP 0 < OR IF
+    ." ILLEGAL MOVE." CR DROP  PROMPT-MOVE
+  THEN  DROP  1-  ;
+
+: PLAY-AGAIN?  ( -- flag )
+  CR ." PRESS ANY KEY TO PLAY AGAIN." CR
+  KEY DROP  1 =  ;
+
+: GAME-LOOP  ( -- )
+  0 0 0 0 0 0 0 0 0  ( initialize board to all zeros )
+  0 0 ( player goes first )
+  9 0 DO
+    DUP 1+ 2 MOD 0= IF
+      ." COMPUTER'S TURN." CR
+      RANDOM 3 MOD 1+   ( generate random move )
+      RANDOM 3 MOD 1+   ( generate random move )
+    ELSE
+      ." YOUR TURN." CR  PROMPT-MOVE
+    THEN
+    DUP 1+ 2 MOD 1=  ( alternate turns )
+    DUP 1- 3 / 1+  DUP 3 MOD 1+  ( convert move to row/col indices )
+    DUP B@ 0= IF  SWAP B!  THEN  ( update board if move is legal )
+    PRINT-BOARD
+    DUP 1 1 B@ 1 2 B@ 1 3 B@ * IF  EXIT  THEN  \ check rows
+    DUP 2 1 B@ 2 2 B@ 2 3 B@ * IF  EXIT  THEN
+    DUP 3 1 B@ 3 2 B@ 3 3 B@ * IF  EXIT  THEN
+    DUP 1 1 B@ 2 1 B@ 3 1 B@ * IF  EXIT  THEN  \ check columns
+    DUP 1 2 B@ 2 2 B@ 3 2 B@ * IF  EXIT  THEN
+    DUP 1 3 B@ 2 2 B@ 3 1 B@ * IF  EXIT  THEN  \ check diagonals
+  LOOP ;
+
+: TIC-TAC-TOE  ( -- )
+  PRINT-BOARD
+  CR ." PRESS ANY KEY TO BEGIN." CR
+  KEY DROP
+  BEGIN
+    GAME-LOOP
+    CR DUP 1+ 2 MOD 0= IF
+      ." COMPUTER WINS." CR
+    ELSE
+      ." YOU WIN." CR
+    THEN
+    PLAY-AGAIN? UNTIL
+  DROP ;
+```
+
