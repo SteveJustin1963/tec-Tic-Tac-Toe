@@ -51,3 +51,18 @@ CREATE WINNING-CONFIGURATIONS
     DROP ( remove index )
 ;
 ```
+
+
+## another check for win
+```
+: checkForWin ( player -- flag )
+  3 0 DO
+    I 3 * DUP 3 + DUP 6 + SWAP
+    OVER 1+ SWAP OVER 2+ SWAP
+    DUP @ ROT @ ROT @ = AND AND
+    IF DROP 1 EXIT THEN
+  LOOP
+  0 ;
+  ```
+  
+  
