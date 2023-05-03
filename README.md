@@ -65,7 +65,7 @@ CREATE WINNING-CONFIGURATIONS
   0 ;
   ```
   
-  ## another
+## another
   ```
   : RESET-BOARD  ( -- )
   3 3 DO  3 0 DO  I J 2DUP  B!  LOOP  LOOP  ;
@@ -124,3 +124,99 @@ CREATE WINNING-CONFIGURATIONS
   DROP ;
 ```
 
+## another 2
+```
+CREATE board 9 CELLS ALLOT
+
+: A ( n -- ) 2 * 1+ ; \ Calculates the position in the array
+
+: B ( row col -- addr ) \ Calculate the cell address in the array
+  SWAP 3 * + board + ;
+
+: C \ Initialize the board
+  0 9 0 DO
+    I board + 0 !
+  LOOP ;
+
+C
+
+: D ( n row col -- ) \ Set the position
+  >R >R
+  R> R> B ! ;
+
+: E \ Print the board
+  CR
+  0 3 0 DO
+    I 3 * 0 DO
+      I J + B @ . SPACE
+    LOOP CR
+  LOOP CR ;
+
+: F ( n -- row col )
+  3 /MOD ;
+
+: G ( row col -- addr ) \ Calculate the cell address in the array
+  3 * + board + ;
+
+: H ( n -- winner? )
+  >R
+  0
+  { {0 1 2} {3 4 5} {6 7 8} {0 3 6} {1 4 7} {2 5 8} {0 4 8} {2 4 6} }
+  FOR I
+    0
+    I BEGIN
+      I @ F G @ R@ =
+      IF
+        1+
+      ELSE
+        DROP 0
+      THEN
+      I 2 + >R SWAP R> 1+ SWAP
+    UNTIL
+    3 =
+  THEN
+  IF
+    DROP R> DROP 1
+  ELSE
+    DROP R> 0
+  THEN ;
+
+: J \ Check for a win
+  0
+  9 0 DO
+    I H
+    IF
+      CR ." We have a winner!" CR
+      1+
+    THEN
+  LOOP
+  0= IF
+    CR ." Board is Full -- Tie Game." CR
+  THEN ;
+
+: K ( n -- ) \ Main game loop
+  D E J ;
+
+: random-move ( -- n )
+  BEGIN
+    9 RANDOM 9 MOD
+  DUP H 0= UNTIL ;
+
+: user-move ( -- n )
+  BEGIN
+    CR ." Enter your move (0-8): " DECIMAL
+    ACCEPT 48 - ( Convert ASCII to number )
+  DUP H 0= UNTIL ;
+
+: game-loop
+  BEGIN
+    user-move K
+    random-move K
+    J 0= NOT
+  UNTIL ;
+
+: play-game
+  C
+  E
+  game-loop ;
+```
