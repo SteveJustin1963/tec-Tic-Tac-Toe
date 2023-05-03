@@ -1,5 +1,15 @@
 # Tic-Tac-Toe / Naughts and Crosses  
 
+Here's a more tidy version:
+
+Arrays in this language are defined using an array of 16-bit numbers enclosed in square brackets: `[n,n,...]`. When an array is created, its address and length are obtained. The stack displays the address and length as `<address 2*> <length 2*>` format. For example, entering `[1 2 3 4]` and pressing `ctrl-p` will display `> 3368 00004` on the stack, where `>` is the terminal prompt.
+
+To create an array of 16-bit numbers, enter the values enclosed in square brackets. For example, `[100 200 400 800]` will return a pointer to the array and its length in words (in this case, 4). Store the pointer in a variable, say `c`, and discard the length value with `'[100 200 400 800] c!`.
+
+To access an element in the array, calculate the offset address and deal with 16-bit quantities. For example, to get the third element in the array, push the address of the array stored in `c` onto the stack, then push the index `3` onto the stack. Multiply the index by 2 to get the offset in bytes. Add the offset to the address of the array, and fetch the 16-bit value stored there using `c@ 3 2* + @.` To divide a value by 2 or shift it one bit to the right, use `{ + @.` instead.
+
+For another example, to store the array `[1 2 3 4 5 6 7 8 9 0]` in a variable `a`, swap the starting address onto the stack and store it in `a` using `$ a!`. To fetch the `N`th member of the array, create a colon definition `N` with `:N @ $ {+ @. ;`. To access the second element in the array stored in `a`, enter `a 1 2* + @.` or `a 1 {+ @.` to print `2`. To store `100` in the last location of the array, enter `100 a 2 2* + !.` or `100 a 2{+ !.` The resulting array will be `[1 2 100]`.
+
 
 ```
 VARIABLE board
