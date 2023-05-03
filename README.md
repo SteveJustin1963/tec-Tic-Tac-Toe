@@ -17,8 +17,6 @@ VARIABLE board
     I A board @ + I !
   LOOP ;
 
-C
-
 : D ( n row col -- ) \ Set the position
   >R >R
   R> R> B ! ;
