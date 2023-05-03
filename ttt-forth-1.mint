@@ -1,6 +1,4 @@
-: C 1 10 1 do
-       i A b@ + i! 
-   loop ;
+: C 10( 1 do i A b@ + i!) ;
 
 : E 0 3 0 do
        i 3 * 0 do
