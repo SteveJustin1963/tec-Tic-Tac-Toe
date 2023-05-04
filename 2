@@ -36,19 +36,4 @@
 : X C E begin 
       u 120 K r ! 111 K J 0= 
    until ;
-/////////////////
-This code implements a game of tic-tac-toe. Here's a brief summary of what each part of the code does:
-
-- `[1 2 3 4 5 6 7 8 9] 2' b!`: Initializes a binary array representing the game board, with 0s representing empty spaces and 1s representing player moves.
-- `: A 2 * ;`: Defines a function `A` that multiplies the top of the stack by 2.
-- `: C ... loop ;`: Defines a function `C` that fills the game board with the numbers 1-9.
-- `: D ... ;`: Defines a function `D` that makes a move on the game board for the current player.
-- `: E ... loop ;`: Defines a function `E` that displays the current game board.
-- `: F 3 / ;`: Defines a function `F` that divides the top of the stack by 3.
-- `: G $ 3 * + b @ + ;`: Defines a function `G` that calculates the index in the binary game board array corresponding to a given row and column.
-- `: H ... then ;`: Defines a function `H` that checks for a winning move on the game board.
-- `: J ... then ;`: Defines a function `J` that checks for a winner or a tie game.
-- `: K ... ;`: Defines a function `K` that makes a move, displays the updated board, and checks for a winner or a tie game.
-- `: r ... until ;`: Defines a function `r` that generates a random move for the computer.
-- `: u ... until ;`: Defines a function `u` that prompts the user to enter a move and validates the input.
-- `: X ... until ;`: Defines a function `X` that runs the game loop, alternating between the user and the computer until the game is over.
+ 
