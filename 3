@@ -1,53 +1,53 @@
-variable B
-variable R
+variable Board
+variable Round
 
-: A ( Initialize board )
+: InitializeBoard ( Initialize the board )
     1 10 1 do
-        i 2 * B +! 
+        i 2 * Board +! 
     loop ;
 
-: C ( Update board: R N -- )
-    R @ 3 * B +! ;
+: UpdateBoard ( Update the board: R N -- )
+    Round @ 3 * Board +! ;
 
-: D ( Print board )
+: PrintBoard ( Print the board )
     0 3 0 do
         i 3 * 0 do
-            i j + 3 * B + @ . space
+            i j + 3 * Board + @ . space
         loop
         cr
     loop ;
 
-: E ( Check winner: R -- F )
-    R ! 0
+: CheckWinner ( Check winner: R -- F )
+    Round ! 0
     0 3 0 do
         i 3 * 0 do
-            i j + 3 * B + @ R @ = if 1+ else 0 then R +!
+            i j + 3 * Board + @ Round @ = if 1+ else 0 then Round +!
         loop
     loop
-    R @ 3 = ;
+    Round @ 3 = ;
 
-: F ( Play round: N -- )
-    C D
-    E if
+: PlayRound ( Play round: N -- )
+    UpdateBoard PrintBoard
+    CheckWinner if
         cr ." WE HAVE A WINNER!" cr exit
     then ;
 
-: G ( Random move )
+: RandomMove ( Random move )
     begin
-        9 random 1+ dup E 0= and
+        9 random 1+ dup CheckWinner 0= and
     until
-    F ;
+    PlayRound ;
 
-: H ( User move )
+: UserMove ( User move )
     begin
-        cr ." ENTER YOUR MOVE (1-9): " decimal accept 48 - dup E 0=
+        cr ." ENTER YOUR MOVE (1-9): " decimal accept 48 - dup CheckWinner 0=
     until
-    F ;
+    PlayRound ;
 
-: Z ( Main )
-    A D
+: Main ( Main )
+    InitializeBoard PrintBoard
     begin
-        H 120
-        G 111
-        E 0=
+        UserMove 120
+        RandomMove 111
+        CheckWinner 0=
     until ;
