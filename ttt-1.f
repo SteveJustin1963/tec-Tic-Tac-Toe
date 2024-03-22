@@ -35,26 +35,17 @@ CURRENT_PLAYER PLAYER1  ; Start with player 1
     1-  ; Convert 1-based input to 0-based index
 ;
 
-: check-win ( player n -- win? )
-  0 2 1 + DUP @ =  ; Check first row
-  IF ( . ) THEN ELSE 
-    0 1 2 + DUP @ = OR  ; Check first row OR diagonal (top-left to bottom-right)
-    IF ( . ) THEN ELSE 
-      1 2 1 + DUP @ = OR  ; Check second row OR other diagonal (bottom-left to top-right)
-      IF ( . ) THEN ELSE
-        2 2 1 + DUP @ =  ; Check third row
-        IF ( . ) THEN ELSE ( . ) THEN 
-          SWAP 0 2 1 + DUP @ = OR  ; Check first column OR diagonal
-          IF ( . ) THEN ELSE ( . ) THEN 
-            SWAP 1 2 1 + DUP @ = OR  ; Check second column OR other diagonal
-            IF ( . ) THEN ELSE ( . ) THEN 
-              SWAP 2 2 1 + DUP @ =   ; Check third column
-            THEN
-          THEN
-        THEN
-      THEN
-    THEN
-  THEN
+ 
+ : check-win ( player n -- win? )
+  0 2 1 + DUP @ =  ; First row
+  0 1 2 + DUP @ = OR  ; First row OR diagonal (top-left to bottom-right)
+  1 2 1 + DUP @ = OR  ; Second row OR other diagonal (bottom-left to top-right)
+  2 2 1 + DUP @ = OR  ; Third row
+  0 2 1 + DUP @ = OR  ; First column OR diagonal (reuse because same as first row check)
+  1 2 1 + DUP @ = OR  ; Second column
+  2 2 1 + DUP @ =  ; Third column
+;
+
 ;
 
 
