@@ -35,36 +35,28 @@ CURRENT_PLAYER PLAYER1  ; Start with player 1
     1-  ; Convert 1-based input to 0-based index
 ;
 
-; Check if a player has won
 : check-win ( player n -- win? )
-    0 2 1 + DUP @ =  ; Check first row
-    IF ( . ) THEN ELSE ( . ) THEN 
-        2 2 1 + DUP @ =  ; Check second row
+  0 2 1 + DUP @ =  ; Check first row
+  IF ( . ) THEN ELSE 
+    0 1 2 + DUP @ = OR  ; Check first row OR diagonal (top-left to bottom-right)
+    IF ( . ) THEN ELSE 
+      1 2 1 + DUP @ = OR  ; Check second row OR other diagonal (bottom-left to top-right)
+      IF ( . ) THEN ELSE
+        2 2 1 + DUP @ =  ; Check third row
         IF ( . ) THEN ELSE ( . ) THEN 
-            4 2 1 + DUP @ =  ; Check third row
+          SWAP 0 2 1 + DUP @ = OR  ; Check first column OR diagonal
+          IF ( . ) THEN ELSE ( . ) THEN 
+            SWAP 1 2 1 + DUP @ = OR  ; Check second column OR other diagonal
             IF ( . ) THEN ELSE ( . ) THEN 
-                SWAP 0 2 1 + DUP @ =  ; Check first column
-                IF ( . ) THEN ELSE ( . ) THEN 
-                    SWAP 1 2 1 + DUP @ =  ; Check second column
-                    IF ( . ) THEN ELSE ( . ) THEN 
-                        SWAP 2 2 1 + DUP @ =  ; Check third column
-                        IF ( . ) THEN ELSE ( . ) THEN 
-                            0 1 2 + DUP @ =  ; Check diagonal (top-left to bottom-right)
-                            IF ( . ) THEN ELSE ( . ) THEN 
-                                2 0 2 + DUP @ =   ; Check other diagonal (bottom-left to top-right)
-                                IF ( . ) THEN 
-                                    FALSE  ; No win
-                                ELSE 
-                                    TRUE   ; Win
-                                THEN
-                            THEN
-                        THEN
-                    THEN
-                THEN
+              SWAP 2 2 1 + DUP @ =   ; Check third column
             THEN
+          THEN
         THEN
+      THEN
     THEN
+  THEN
 ;
+
 
 ; Computer move using minimax algorithm (simplified version)
 : computer-move ( board -- n )
