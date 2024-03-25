@@ -1,15 +1,18 @@
-variable b
-variable r
+\\ variable b
+\\ variable r
 
-: A ( Initialize board )
+\\ ( Initialize board )
+:A 
     1 10 1 do
         i 2 * b +! 
     loop ;
 
-: B ( Update board: r N -- )
+\\ Update board: r N -- )
+:B (
     r @ 3 * b +! ;
 
-: C ( Print board )
+\\ ( Print board )
+:C 
     0 3 0 do
         i 3 * 0 do
             i j + 3 * b + @ . space
@@ -17,7 +20,8 @@ variable r
         cr
     loop ;
 
-: D ( Check winner: r -- F )
+\\ ( Check winner: r -- F )
+:D 
     r ! 0
     0 3 0 do
         i 3 * 0 do
@@ -26,25 +30,28 @@ variable r
     loop
     r @ 3 = ;
 
-: E ( Play round: N -- )
-    B C
+\\ ( Play round: N -- )
+:E     B C
     D if
         cr ." WE HAVE A WINNER!" cr exit
     then ;
 
-: F ( Random move )
+\\ ( Random move )
+:F 
     begin
         9 random 1+ dup D 0= and
     until
     E ;
 
-: G ( User move )
+\\ ( User move )
+:G 
     begin
         cr ." ENTER YOUR MOVE (1-9): " decimal accept 48 - dup D 0=
     until
     E ;
 
-: Z ( Main )
+\\ ( Main )
+:Z 
     A C
     begin
         G 120
