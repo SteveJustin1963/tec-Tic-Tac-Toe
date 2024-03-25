@@ -28,7 +28,7 @@
       then 
    loop 
    0= if cr ." BOARD IS FULL -- TIE GAME." cr then ;
-: K D E J ;
+: K D E J ;  \\main loop
 : r begin 9 random 9 / dup H 0= until ;
 : u begin 
       cr ." ENTER YOUR MOVE (1-9): " decimal accept 48 - dup H 0= 
