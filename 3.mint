@@ -2,10 +2,14 @@
 \\ variable r
 
 \\ ( Initialize board )
-:A 
-    1 10 1 do
-        i 2 * b +! 
-    loop ;
+\\:A 
+  \\  1 10 1 do
+    \\    i 2 * b + ! 
+    \\loop ;
+
+:A 10(\i@2* b@+ b!);
+
+
 
 \\ Update board: r N -- )
 :B (
