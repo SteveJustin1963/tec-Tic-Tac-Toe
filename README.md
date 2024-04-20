@@ -11,7 +11,7 @@ Here are the basic rules of Tic-Tac-Toe:
 7. A winning condition is achieved when a player gets three of their symbols in a row, either horizontally, vertically, or diagonally.
 8. If all the cells are filled and no player has won, the game ends in a draw.
 
-Tic-Tac-Toe is a relatively simple game, and with optimal play from both players, it always results in a draw. Because of this, it is often used as an introductory game for teaching basic strategy and critical thinking. Despite its simplicity, Tic-Tac-Toe has been widely enjoyed by people of all ages and is commonly played both on paper and in digital formats.
+Tic-Tac-Toe is a relatively simple game, and with optimal play from both players, it always results in a draw. Because of this, it is often used as an introductory game for teaching basic strategy and critical thinking. Despite its simplicity, Tic-Tac-Toe has been widely enjoyed by people of all ages and is commonly played both on paper and in digital formats. Its also an excellent task to code as its not as easy at it seems
 
 
 ## Ref
