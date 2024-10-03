@@ -10,7 +10,7 @@
 
 :G                        // Function to get the player's move
   `Your move (1-9): ` . /K n ! 
-  n 1 < n 9 > or ( `Invalid move, try again.` , /G )
+  n 1 < n 9 > ( `Invalid move, try again.` , /G )
   n 1 - b n ! p b n !
 ;
 
