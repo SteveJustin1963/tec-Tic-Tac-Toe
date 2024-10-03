@@ -1,3 +1,4 @@
+```
 [ 1 2 3 4 5 6 7 8 9 ] b !  // Initialize the game board
 /T p ! /F c !             // Player marker is true, computer marker is false
 
@@ -38,3 +39,6 @@
 ;
 
 S                         // Start the game
+
+```
+
