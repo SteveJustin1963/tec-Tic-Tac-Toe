@@ -1,4 +1,96 @@
 ```
+[ 0 0 0 0 0 0 0 0 0 ] b !      // Initialize the game board
+
+/T p ! /F c !                  // Player marker is 1, computer marker is 2 (adjusted in code)
+
+/N
+
+:P                             // Function to print the game board
+  9 (
+    b /i ? n !
+    n 0 = (
+      /i 1 + .                 // Print cell number
+    ) /E (
+      n 1 = ( `X` . ) /E (
+      n 2 = ( `O` . )
+    ))
+    /i 2 % 0 = (
+      /N
+    ) /E (
+      `|` .                    // Separator
+    )
+  )
+;
+
+/N
+
+:G                             // Function to get the player's move
+  `Your move (1-9): ` . /K n !
+  n 48 - n !                   // Convert ASCII code to number
+  n 1 >= n 9 <= and /T = (
+    n 1 - i !
+    b i ? 0 = (
+      1 b i !                  // Player's move
+    ) /E (
+      `Position occupied, try again.` . /N
+      G
+    )
+  ) /E (
+    `Invalid move, try again.` . /N
+    G
+  )
+;
+
+/N
+
+:M                             // Function for computer's move
+  9 (
+    b /i ? 0 = (
+      2 b /i !                 // Computer's move
+      `Computer moves to position ` /i 1 + . /N
+      /U /W
+    )
+  )
+;
+
+/N
+
+:C                             // Function to check for a winner or a tie
+  (
+    // Check rows
+    b 0 ? b 1 ? = b 1 ? b 2 ? = and b 0 ? 0 > and (
+      b 0 ? 1 = ( `Player wins!` . /T ) /E ( `Computer wins!` . /T )
+    )
+    // Similarly check columns and diagonals...
+  ) /T = ( /T ) /E (
+    // Check for tie
+    9 ( b /i ? 0 > and ) /F = ( `It's a tie!` . /T ) /E ( /F )
+  )
+;
+
+/N
+
+:S                             // Main game loop
+  `TIC TAC TOE` . /N
+  P                            // Print the initial board
+  /U (
+    G                          // Player's move
+    P                          // Print the board
+    C /T = ( /U /W )           // Check for win or tie
+    M                          // Computer's move
+    P                          // Print the board
+    C /T = ( /U /W )           // Check for win or tie
+  )
+;
+
+/N
+
+S                              // Start the game
+
+```
+
+/////////////////////
+```
 [ 1 2 3 4 5 6 7 8 9 ] b !  // Initialize the game board
 /T p ! /F c !             // Player marker is true, computer marker is false
 
