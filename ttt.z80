@@ -106,6 +106,12 @@ display_loop:
     CALL get_board_state
     CALL convert_to_7seg
     OUT (DISPLAY_DATA), A    ; Output the segment data
+    ; Add a small delay to ensure data is latched
+    PUSH BC
+    LD B, 10
+delay_loop:
+    DJNZ delay_loop
+    POP BC
     INC C
     DJNZ display_loop
     RET
