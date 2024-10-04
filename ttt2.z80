@@ -1,5 +1,6 @@
 ; Tic-Tac-Toe for TEC-1 (Z80-based)
 ; Adapted from PIC16F628 version and corrected for Z80 instruction set
+; https://www.talkingelectronics.com/projects/TicTacToe/TicTacToe-P1.html
 
 ; Constants
 DISPLAY_DATA    EQU 0x02  ; Port for display data (connected to 74LS374)
