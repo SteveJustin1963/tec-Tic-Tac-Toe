@@ -13,7 +13,7 @@ Here are the basic rules of Tic-Tac-Toe:
 
 Tic-Tac-Toe is a relatively simple game, and with optimal play from both players, it always results in a draw. Because of this, it is often used as an introductory game for teaching basic strategy and critical thinking. Despite its simplicity, Tic-Tac-Toe has been widely enjoyed by people of all ages and is commonly played both on paper and in digital formats. Its also an excellent task to code as its not as easy at it seems
 
-### ttt.z80   newest on top then /// more  ///// more ////....
+### tttx.z80   newest on top then /// more  ///// more ////....
 what is actually displayed on the 7-segment LEDs for the TEC-1B Tic-Tac-Toe game.
 
 The TEC-1B has 6 7-segment LED displays, which we can use to show the entire Tic-Tac-Toe board at once. Here's how we should display the game state:
