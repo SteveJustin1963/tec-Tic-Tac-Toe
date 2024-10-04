@@ -1,10 +1,10 @@
 ; Tic-Tac-Toe for JMON
-; Modified to work with JMON's keyboard input and 7-segment LED output
+; Modified to work with JMON's keyboard input and specific circuit display
 
 ; Constants
-DISPLAY_DATA    EQU 0x00
-DISPLAY_SELECT  EQU 0x01
-INPUT_PORT      EQU 0x03
+DISPLAY_DATA    EQU 0x02  ; Port for display data (connected to 8212)
+DISPLAY_SELECT  EQU 0x01  ; Port for display select (connected to 74LS138)
+INPUT_PORT      EQU 0x00  ; Port for keyboard input (74C923)
 
 ; RAM Variables
     ORG 0x8000
@@ -30,7 +30,9 @@ player_turn:
     ; Wait for input (using JMON's RST 10)
     RST 0x10
     AND 0x1F  ; Mask off unused bits
-    CP 9      ; Check if input is valid (0-8)
+    CP 16     ; Check if input is valid (0-15 for this keypad)
+    JP NC, player_turn  ; If >=16, invalid input, try again
+    CP 9      ; We only use 0-8 for Tic-Tac-Toe
     JP NC, player_turn  ; If >=9, invalid input, try again
     LD (cursor), A
     ; Check if the move is valid
@@ -94,18 +96,36 @@ clear_loop:
 
 display_board:
     ; Display the current board state on the 7-segment displays
-    LD HL, board
     LD B, 6  ; Display 6 cells (2 rows of the board)
     LD C, 0  ; Start with the first display
 display_loop:
-    LD A, (HL)
-    CALL convert_to_7seg
-    OUT (DISPLAY_DATA), A
     LD A, C
-    OUT (DISPLAY_SELECT), A
-    INC HL
+    OUT (DISPLAY_SELECT), A  ; Select the display
+    LD A, C
+    LD HL, board
+    CALL get_board_state
+    CALL convert_to_7seg
+    OUT (DISPLAY_DATA), A    ; Output the segment data
     INC C
     DJNZ display_loop
+    RET
+
+get_board_state:
+    ; Input: A = display number (0-5)
+    ; Output: A = board state (0, 1, or 2)
+    ; Converts display number to board position
+    CP 3
+    JR NC, bottom_row
+    ; Top row
+    ADD A, 0  ; No change for top row
+    JR get_state
+bottom_row:
+    ADD A, 3  ; Adjust for bottom row
+get_state:
+    LD C, A
+    LD B, 0
+    ADD HL, BC
+    LD A, (HL)
     RET
 
 convert_to_7seg:
