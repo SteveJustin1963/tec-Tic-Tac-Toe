@@ -1,8 +1,6 @@
-; Tic-Tac-Toe for JMON
-; Modified to work with JMON's keyboard input and specific circuit display
-
+; Tic-Tac-Toe for JMON on TEC-1B with full board display
 ; Constants
-DISPLAY_DATA    EQU 0x02  ; Port for display data (connected to 8212)
+DISPLAY_DATA    EQU 0x02  ; Port for display data (connected to 74LS374)
 DISPLAY_SELECT  EQU 0x01  ; Port for display select (connected to 74LS138)
 INPUT_PORT      EQU 0x00  ; Port for keyboard input (74C923)
 
@@ -11,12 +9,12 @@ INPUT_PORT      EQU 0x00  ; Port for keyboard input (74C923)
 board:          DS 9    ; Tic-tac-toe board (0 = empty, 1 = player, 2 = CPU)
 current_player: DS 1    ; 1 = player, 2 = CPU
 cursor:         DS 1    ; Current cursor position (0-8)
+display_mode:   DS 1    ; 0 = top two rows, 1 = bottom row
 
     ORG 0x0000
     JP main
 
 main:
-    ; Initialize the game
     CALL init_game
 game_loop:
     CALL display_board
@@ -27,15 +25,11 @@ game_loop:
     JP check_game_over
 
 player_turn:
-    ; Wait for input (using JMON's RST 10)
     RST 0x10
-    AND 0x1F  ; Mask off unused bits
-    CP 16     ; Check if input is valid (0-15 for this keypad)
-    JP NC, player_turn  ; If >=16, invalid input, try again
-    CP 9      ; We only use 0-8 for Tic-Tac-Toe
+    AND 0x0F  ; Mask to get 0-15
+    CP 9
     JP NC, player_turn  ; If >=9, invalid input, try again
     LD (cursor), A
-    ; Check if the move is valid
     LD HL, board
     LD C, A
     LD B, 0
@@ -43,12 +37,10 @@ player_turn:
     LD A, (HL)
     CP 0
     JP NZ, player_turn  ; Invalid move, try again
-    ; Make the move
     LD (HL), 1
     JP check_game_over
 
 cpu_turn:
-    ; Simple AI: choose the first empty space
     LD HL, board
     LD B, 9
 cpu_loop:
@@ -64,8 +56,6 @@ cpu_move_found:
     RET
 
 check_game_over:
-    ; Check for a win or draw (not implemented in this simple version)
-    ; For now, just switch players
     LD A, (current_player)
     CP 1
     JP Z, set_cpu_turn
@@ -79,7 +69,6 @@ set_cpu_turn:
     JP game_loop
 
 init_game:
-    ; Clear the board
     LD HL, board
     LD B, 9
     XOR A
@@ -87,58 +76,68 @@ clear_loop:
     LD (HL), A
     INC HL
     DJNZ clear_loop
-    ; Set initial values
     LD A, 1
     LD (current_player), A
     XOR A
     LD (cursor), A
+    LD (display_mode), A
     RET
 
 display_board:
-    ; Display the current board state on the 7-segment displays
-    LD B, 6  ; Display 6 cells (2 rows of the board)
-    LD C, 0  ; Start with the first display
-display_loop:
-    LD A, C
-    OUT (DISPLAY_SELECT), A  ; Select the display
-    LD A, C
-    LD HL, board
-    CALL get_board_state
+    LD A, (display_mode)
+    XOR 1
+    LD (display_mode), A  ; Toggle display mode
+    OR A
+    JP Z, display_top_rows
+    ; Display bottom row
+    LD HL, board + 6
+    LD B, 3
+    CALL display_row
+    ; Display current player in 4th position
+    LD A, 3
+    OUT (DISPLAY_SELECT), A
+    LD A, (current_player)
     CALL convert_to_7seg
-    OUT (DISPLAY_DATA), A    ; Output the segment data
-    ; Add a small delay to ensure data is latched
-    PUSH BC
-    LD B, 10
-delay_loop:
-    DJNZ delay_loop
-    POP BC
-    INC C
-    DJNZ display_loop
+    OUT (DISPLAY_DATA), A
+    ; Display "P" in 5th position to indicate "Player"
+    LD A, 4
+    OUT (DISPLAY_SELECT), A
+    LD A, 0x73  ; "P" on 7-segment display
+    OUT (DISPLAY_DATA), A
+    ; Leave 6th position blank
+    LD A, 5
+    OUT (DISPLAY_SELECT), A
+    XOR A
+    OUT (DISPLAY_DATA), A
     RET
 
-get_board_state:
-    ; Input: A = display number (0-5)
-    ; Output: A = board state (0, 1, or 2)
-    ; Converts display number to board position
-    CP 3
-    JR NC, bottom_row
-    ; Top row
-    ADD A, 0  ; No change for top row
-    JR get_state
-bottom_row:
-    ADD A, 3  ; Adjust for bottom row
-get_state:
-    LD C, A
-    LD B, 0
-    ADD HL, BC
+display_top_rows:
+    LD HL, board
+    LD B, 3
+    CALL display_row
+    LD HL, board + 3
+    LD B, 3
+    CALL display_row
+    RET
+
+display_row:
+    LD C, 0
+display_cell:
+    LD A, C
+    OUT (DISPLAY_SELECT), A
     LD A, (HL)
+    CALL convert_to_7seg
+    OUT (DISPLAY_DATA), A
+    INC HL
+    INC C
+    DJNZ display_cell
     RET
 
 convert_to_7seg:
     ; Convert board state to 7-segment LED pattern
-    ; 0 (empty) = 0x00
-    ; 1 (player) = 0x06 (segment pattern for '1')
-    ; 2 (CPU) = 0x5B (segment pattern for '2')
+    ; 0 (empty) = 0x00 (all segments off)
+    ; 1 (player) = 0x06 (segments b and c on, displays as "1")
+    ; 2 (CPU) = 0x5B (segments a, b, d, e, g on, displays as "2")
     CP 0
     JR Z, empty_cell
     CP 1
