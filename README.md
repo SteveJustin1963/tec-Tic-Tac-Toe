@@ -103,9 +103,3 @@ This implementation provides a complete view of the Tic-Tac-Toe grid by alternat
 
 
 
-
-## Ref
-- https://en.wikipedia.org/wiki/Tic-tac-toe
-- https://www.talkingelectronics.com/projects/TicTacToe/TicTacToe-P1.html
-- https://github.com/xtrelis/Tic-Tac-Toe/tree/master
-- 
