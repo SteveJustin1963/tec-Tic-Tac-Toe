@@ -13,8 +13,8 @@ Here are the basic rules of Tic-Tac-Toe:
 
 Tic-Tac-Toe is a relatively simple game, and with optimal play from both players, it always results in a draw. Because of this, it is often used as an introductory game for teaching basic strategy and critical thinking. Despite its simplicity, Tic-Tac-Toe has been widely enjoyed by people of all ages and is commonly played both on paper and in digital formats. Its also an excellent task to code as its not as easy at it seems
 
-### ttt.z80
-I apologize for the confusion in my previous responses. Let me clarify what is actually displayed on the 7-segment LEDs for the TEC-1B Tic-Tac-Toe game.
+### ttt.z80   newest on top then /// more  ///// more ////....
+what is actually displayed on the 7-segment LEDs for the TEC-1B Tic-Tac-Toe game.
 
 The TEC-1B has 6 7-segment LED displays, which we can use to show the entire Tic-Tac-Toe board at once. Here's how we should display the game state:
 
@@ -25,10 +25,7 @@ The TEC-1B has 6 7-segment LED displays, which we can use to show the entire Tic
    - Player's move: Display "1"
    - CPU's move: Display "2"
 
-Let's update our code to reflect this more accurately:
-
-
- 
+update code to reflect this
 
 Key changes and explanations:
 
@@ -58,11 +55,11 @@ We can achieve this by alternating the display between the top two rows and the 
 
 /////////////
 
- Let's improve our implementation to show all three rows of the Tic-Tac-Toe grid using the 6 available 7-segment displays.
+improve code to show all three rows of the Tic-Tac-Toe grid using the 6 available 7-segment displays.
 
-We can achieve this by alternating the display between the top two rows and the bottom row (plus some additional information). Here's how we can modify the code to accomplish this:
+doen by alternating the display between the top two rows and the bottom row (plus some additional information). 
 
-
+how :
  
 Key changes and explanations:
 
