@@ -1,0 +1,313 @@
+
+
+; Tic-Tac-Toe for TEC-1 (Z80-based)
+; Adapted from PIC16F628 version https://www.talkingelectronics.com/projects/TicTacToe/TicTacToe-P1.html
+
+; Constants
+DISPLAY_DATA    EQU 0x02  ; Port for display data (connected to 74LS374)
+DISPLAY_SELECT  EQU 0x01  ; Port for display select (connected to 74LS138)
+INPUT_PORT      EQU 0x00  ; Port for keyboard input (74C923)
+
+; RAM Variables
+    ORG 0x8000
+board:          DS 9    ; Tic-tac-toe board (0 = empty, 1 = player, 2 = computer)
+current_player: DS 1    ; 1 = player, 2 = computer
+cursor:         DS 1    ; Current cursor position (0-8)
+random_seed:    DS 1    ; Seed for pseudo-random number generation
+
+    ORG 0x0000
+    JP main
+
+main:
+    CALL init_game
+game_loop:
+    CALL display_board
+    LD A, (current_player)
+    CP 1
+    JP Z, player_turn
+    CALL computer_turn
+    JP check_game_over
+
+player_turn:
+    CALL get_input
+    CP 9
+    JP NC, player_turn  ; Invalid input, try again
+    LD HL, board
+    LD C, A
+    LD B, 0
+    ADD HL, BC
+    LD A, (HL)
+    CP 0
+    JP NZ, player_turn  ; Invalid move, try again
+    LD (HL), 1
+    JP check_game_over
+
+computer_turn:
+    CALL find_winning_move
+    RET NZ  ; Winning move found and played
+    CALL block_player
+    RET NZ  ; Blocking move found and played
+    CALL strategic_move
+    RET
+
+find_winning_move:
+    LD HL, win_patterns
+find_win_loop:
+    LD A, (HL)
+    CP 0xFF
+    RET Z  ; No winning move found
+    LD C, A
+    INC HL
+    LD B, (HL)
+    INC HL
+    PUSH HL
+    CALL check_win_pattern
+    POP HL
+    RET NZ  ; Winning move found and played
+    INC HL
+    JP find_win_loop
+
+check_win_pattern:
+    LD HL, board
+    LD A, (BC)
+    CP 2
+    JP NZ, check_next
+    INC BC
+    LD A, (BC)
+    CP 2
+    JP NZ, check_next
+    INC BC
+    LD A, (BC)
+    CP 0
+    JP NZ, pattern_end
+    LD (BC), 2  ; Make winning move
+    OR 1  ; Set NZ flag
+    RET
+check_next:
+    INC BC
+    JP check_win_pattern
+pattern_end:
+    XOR A  ; Set Z flag
+    RET
+
+block_player:
+    LD HL, win_patterns
+block_loop:
+    LD A, (HL)
+    CP 0xFF
+    RET Z  ; No blocking move found
+    LD C, A
+    INC HL
+    LD B, (HL)
+    INC HL
+    PUSH HL
+    CALL check_block_pattern
+    POP HL
+    RET NZ  ; Blocking move found and played
+    INC HL
+    JP block_loop
+
+check_block_pattern:
+    LD HL, board
+    LD A, (BC)
+    CP 1
+    JP NZ, block_next
+    INC BC
+    LD A, (BC)
+    CP 1
+    JP NZ, block_next
+    INC BC
+    LD A, (BC)
+    CP 0
+    JP NZ, block_end
+    LD (BC), 2  ; Make blocking move
+    OR 1  ; Set NZ flag
+    RET
+block_next:
+    INC BC
+    JP check_block_pattern
+block_end:
+    XOR A  ; Set Z flag
+    RET
+
+strategic_move:
+    CALL try_center
+    RET NZ
+    CALL try_corner
+    RET NZ
+    CALL random_move
+    RET
+
+try_center:
+    LD A, (board + 4)
+    CP 0
+    RET NZ
+    LD A, 2
+    LD (board + 4), A
+    OR A  ; Set NZ flag
+    RET
+
+try_corner:
+    LD HL, corners
+try_corner_loop:
+    LD A, (HL)
+    CP 0xFF
+    JP Z, try_corner_end
+    LD C, A
+    LD B, 0
+    LD HL, board
+    ADD HL, BC
+    LD A, (HL)
+    CP 0
+    JP NZ, try_next_corner
+    LD (HL), 2
+    OR 1  ; Set NZ flag
+    RET
+try_next_corner:
+    INC HL
+    JP try_corner_loop
+try_corner_end:
+    XOR A  ; Set Z flag
+    RET
+
+random_move:
+    LD A, (random_seed)
+    INC A
+    LD (random_seed), A
+    AND 0x0F
+    LD C, A
+    LD B, 0
+    LD HL, board
+random_move_loop:
+    LD A, (HL)
+    CP 0
+    JP Z, make_random_move
+    INC HL
+    INC C
+    LD A, C
+    CP 9
+    JP C, random_move_loop
+    LD C, 0
+    JP random_move_loop
+make_random_move:
+    LD (HL), 2
+    RET
+
+check_game_over:
+    CALL check_win
+    RET NZ  ; Game won
+    CALL check_draw
+    RET NZ  ; Game drawn
+    LD A, (current_player)
+    XOR 3
+    LD (current_player), A
+    JP game_loop
+
+check_win:
+    LD HL, win_patterns
+check_win_loop:
+    LD A, (HL)
+    CP 0xFF
+    JP Z, check_win_end
+    LD C, A
+    INC HL
+    LD B, (HL)
+    INC HL
+    PUSH HL
+    CALL check_win_pattern
+    POP HL
+    RET NZ  ; Win found
+    INC HL
+    JP check_win_loop
+check_win_end:
+    XOR A  ; Set Z flag
+    RET
+
+check_draw:
+    LD HL, board
+    LD B, 9
+check_draw_loop:
+    LD A, (HL)
+    CP 0
+    JP Z, check_draw_end
+    INC HL
+    DJNZ check_draw_loop
+    OR 1  ; Set NZ flag (draw)
+    RET
+check_draw_end:
+    XOR A  ; Set Z flag (not draw)
+    RET
+
+init_game:
+    LD HL, board
+    LD B, 9
+    XOR A
+init_loop:
+    LD (HL), A
+    INC HL
+    DJNZ init_loop
+    LD A, 1
+    LD (current_player), A
+    LD A, 0
+    LD (cursor), A
+    LD A, 42  ; Arbitrary initial seed
+    LD (random_seed), A
+    RET
+
+display_board:
+    LD B, 6  ; Display 6 cells (2 rows of the board)
+    LD C, 0  ; Start with the first display
+display_loop:
+    LD A, C
+    OUT (DISPLAY_SELECT), A  ; Select the display
+    LD HL, board
+    ADD HL, BC
+    LD A, (HL)
+    CALL convert_to_7seg
+    OUT (DISPLAY_DATA), A    ; Output the segment data
+    ; Add a small delay to ensure data is latched
+    PUSH BC
+    LD B, 10
+delay_loop:
+    DJNZ delay_loop
+    POP BC
+    INC C
+    DJNZ display_loop
+    RET
+
+convert_to_7seg:
+    ; 0 (empty) = 0x00 (all segments off)
+    ; 1 (player) = 0x06 (segments b and c on, displays as "1")
+    ; 2 (computer) = 0x5B (segments a, b, d, e, g on, displays as "2")
+    CP 0
+    JR Z, empty_cell
+    CP 1
+    JR Z, player_cell
+    LD A, 0x5B
+    RET
+empty_cell:
+    XOR A
+    RET
+player_cell:
+    LD A, 0x06
+    RET
+
+get_input:
+    CALL scan_keypad
+    AND 0x0F  ; Mask to get 0-15
+    CP 9
+    RET C     ; Return if valid input (0-8)
+    JP get_input  ; Keep trying for valid input
+
+scan_keypad:
+    IN A, (INPUT_PORT)
+    RET
+
+win_patterns:
+    DB 0, 1, 2, 3, 4, 5, 6, 7, 8  ; Rows
+    DB 0, 3, 6, 1, 4, 7, 2, 5, 8  ; Columns
+    DB 0, 4, 8, 2, 4, 6           ; Diagonals
+    DB 0xFF  ; End marker
+
+corners:
+    DB 0, 2, 6, 8, 0xFF  ; Corner positions and end marker
