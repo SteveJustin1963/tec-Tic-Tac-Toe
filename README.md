@@ -133,5 +133,42 @@ To use this game on the TEC-1:
 
 This implementation preserves the gameplay and AI logic of the original PIC version while adapting it to the Z80 architecture and TEC-1 hardware. The display is simplified to work with the TEC-1's 7-segment LEDs, but the game logic remains intact.
 
+corrected code for the Tic-Tac-Toe game on the TEC-1 using Z80 assembly. Here are the key points about this version:
+
+All instructions are valid Z80 instructions.
+The game logic remains intact, including player moves, computer AI, win checking, and draw detection.
+The display routine is adapted for the TEC-1's 6 7-segment displays.
+Input is handled through the TEC-1's keypad.
+The game board and variables are stored in RAM starting at 0x8000.
+The main game loop alternates between player and computer turns.
+The computer AI tries to win, then block the player, then make strategic moves.
+A simple pseudo-random number generator is used for the computer's moves when no strategic move is available.
+
+To use this game on the TEC-1:
+
+Load the code into the TEC-1's memory starting at address 0x0000.
+Start execution at 0x0000.
+Use keys 0-8 on the keypad to make your moves.
+The game board will be displayed on the 6 7-segment displays, showing two rows at a time.
+
+
 //////////////
+corrected code for the Tic-Tac-Toe game on the TEC-1 using Z80 assembly. Here are the key points about this version:
+
+All instructions are valid Z80 instructions.
+The game logic remains intact, including player moves, computer AI, win checking, and draw detection.
+The display routine is adapted for the TEC-1's 6 7-segment displays.
+Input is handled through the TEC-1's keypad.
+The game board and variables are stored in RAM starting at 0x8000.
+The main game loop alternates between player and computer turns.
+The computer AI tries to win, then block the player, then make strategic moves.
+A simple pseudo-random number generator is used for the computer's moves when no strategic move is available.
+
+To use this game on the TEC-1:
+
+Load the code into the TEC-1's memory starting at address 0x0000.
+Start execution at 0x0000.
+Use keys 0-8 on the keypad to make your moves.
+The game board will be displayed on the 6 7-segment displays, showing two rows at a time.
+/////////////////
 
