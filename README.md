@@ -100,6 +100,38 @@ To play the game on the TEC-1B:
 This implementation provides a complete view of the Tic-Tac-Toe grid by alternating the display, making it possible to see all nine cells of the game board on the TEC-1B's six 7-segment displays. The additional information about the current player helps keep track of whose turn it is.
 //////////////////
 
+### ttt2.z80
+https://www.talkingelectronics.com/projects/TicTacToe/TicTacToe-P1.html
+
+adapted from the PIC16F628 Tic-Tac-Toe game to run on the Z80-based TEC-1 computer. We'll keep the core game logic and adapt the input/output methods to match the TEC-1's hardware. Here's a new version of the game for the TEC-1:
 
 
+This Z80 assembly code for the TEC-1 computer implements a Tic-Tac-Toe game, adapting the logic from the PIC16F628 version. Here are the key changes and features:
+
+1. Memory Usage: The code uses the Z80's memory space, starting the game board and variables at 0x8000.
+
+2. Input/Output: It uses the TEC-1's specific ports for display (0x01 for select, 0x02 for data) and input (0x00 for keypad).
+
+3. Game Logic: The core game logic is similar to the PIC version, including win checking, computer AI, and board management.
+
+4. Display: The code manages the 6 7-segment displays of the TEC-1, showing two rows of the game board at a time.
+
+5. Input Handling: It reads input from the TEC-1's keypad, mapping keys 0-8 to the game board positions.
+
+6. Computer AI: The AI logic is preserved, with the computer trying to win, then block, then make strategic moves (center, corners, random).
+
+7. Z80 Specifics: The code uses Z80-specific instructions and addressing modes, optimizing for this processor.
+
+8. Randomization: A simple pseudo-random number generator is implemented for computer moves.
+
+To use this game on the TEC-1:
+
+1. Load the code into the TEC-1's memory starting at address 0x0000.
+2. Start execution at 0x0000.
+3. Use keys 0-8 on the keypad to make your moves.
+4. The game board will be displayed on the 6 7-segment displays, showing two rows at a time.
+
+This implementation preserves the gameplay and AI logic of the original PIC version while adapting it to the Z80 architecture and TEC-1 hardware. The display is simplified to work with the TEC-1's 7-segment LEDs, but the game logic remains intact.
+
+//////////////
 
