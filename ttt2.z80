@@ -1,7 +1,5 @@
-
-
 ; Tic-Tac-Toe for TEC-1 (Z80-based)
-; Adapted from PIC16F628 version https://www.talkingelectronics.com/projects/TicTacToe/TicTacToe-P1.html
+; Adapted from PIC16F628 version and corrected for Z80 instruction set
 
 ; Constants
 DISPLAY_DATA    EQU 0x02  ; Port for display data (connected to 74LS374)
@@ -80,14 +78,15 @@ check_win_pattern:
     LD A, (BC)
     CP 0
     JP NZ, pattern_end
-    LD (BC), 2  ; Make winning move
-    OR 1  ; Set NZ flag
+    LD A, 2
+    LD (BC), A  ; Make winning move
+    OR A        ; Set NZ flag
     RET
 check_next:
     INC BC
     JP check_win_pattern
 pattern_end:
-    XOR A  ; Set Z flag
+    XOR A       ; Set Z flag
     RET
 
 block_player:
@@ -120,14 +119,15 @@ check_block_pattern:
     LD A, (BC)
     CP 0
     JP NZ, block_end
-    LD (BC), 2  ; Make blocking move
-    OR 1  ; Set NZ flag
+    LD A, 2
+    LD (BC), A  ; Make blocking move
+    OR A        ; Set NZ flag
     RET
 block_next:
     INC BC
     JP check_block_pattern
 block_end:
-    XOR A  ; Set Z flag
+    XOR A       ; Set Z flag
     RET
 
 strategic_move:
@@ -155,19 +155,22 @@ try_corner_loop:
     JP Z, try_corner_end
     LD C, A
     LD B, 0
+    PUSH HL
     LD HL, board
     ADD HL, BC
     LD A, (HL)
     CP 0
     JP NZ, try_next_corner
     LD (HL), 2
-    OR 1  ; Set NZ flag
+    POP HL
+    OR A        ; Set NZ flag
     RET
 try_next_corner:
+    POP HL
     INC HL
     JP try_corner_loop
 try_corner_end:
-    XOR A  ; Set Z flag
+    XOR A       ; Set Z flag
     RET
 
 random_move:
@@ -232,7 +235,7 @@ check_draw_loop:
     JP Z, check_draw_end
     INC HL
     DJNZ check_draw_loop
-    OR 1  ; Set NZ flag (draw)
+    OR A  ; Set NZ flag (draw)
     RET
 check_draw_end:
     XOR A  ; Set Z flag (not draw)
@@ -248,7 +251,7 @@ init_loop:
     DJNZ init_loop
     LD A, 1
     LD (current_player), A
-    LD A, 0
+    XOR A
     LD (cursor), A
     LD A, 42  ; Arbitrary initial seed
     LD (random_seed), A
@@ -260,9 +263,12 @@ display_board:
 display_loop:
     LD A, C
     OUT (DISPLAY_SELECT), A  ; Select the display
+    PUSH BC
+    LD B, 0
     LD HL, board
     ADD HL, BC
     LD A, (HL)
+    POP BC
     CALL convert_to_7seg
     OUT (DISPLAY_DATA), A    ; Output the segment data
     ; Add a small delay to ensure data is latched
