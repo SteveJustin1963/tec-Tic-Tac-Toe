@@ -199,3 +199,51 @@ S
 S                              // Start the game
 ```
 ///////////////////////////////////////////////////////////////////
+
+// 28.11.24
+
+// Init board and players
+[1 2 3 4 5 6 7 8 9]b! 1p! 2c!
+
+// Print board
+:P
+9(
+b/i?n!
+n3>(n.)
+/E(np=(X.)/E(O.))
+/i1+3%0=(/N)
+/E(`|`.)
+)/N;
+
+// Get player move
+:G
+`Move 1-9:`./Kn!
+n48-1-i!
+bi?9>(pb i!/E(G));
+
+// Computer move
+:M
+9(b/i?9>(cb/i!/U/W));
+
+// Check win
+:C
+[0 1 2 3 4 5 6 7 8 0 3 6 1 4 7 2 5 8 0 4 8 2 4 6]w!
+8(
+w/i3*+?a!
+w/i3*1++?b!
+w/i3*2++?c!
+ba?bb?=bc?=&(
+ba?p=(`WIN`./T/U/W)
+/E(ba?c=(`LOSE`./T/U/W))
+))
+9(b/i?9>/T(/U/W))
+`TIE`./T/U/W/F/N;
+
+// Main game
+:S
+P/U(GP C/T=(/U/W)MP C/T=(/U/W));
+
+S
+
+///////////////////////////////////////////////////
+
