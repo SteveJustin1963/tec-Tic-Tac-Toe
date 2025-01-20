@@ -1,3 +1,5 @@
+
+```
 \ Constants and Board Initialization
 9 CONSTANT BOARD-SIZE
 CREATE BOARD BOARD-SIZE ALLOT
@@ -117,3 +119,4 @@ CREATE BOARD BOARD-SIZE ALLOT
 
 \ Run the game
 MAIN
+```
