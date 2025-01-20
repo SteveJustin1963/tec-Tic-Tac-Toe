@@ -1,3 +1,83 @@
+```
++-------------------+
+|   Initialize      |
+|   Board to Empty  |
++-------------------+
+          |
+          v
++-----------------------+
+| Display Initial Board |
++-----------------------+
+          |
+          v
++-------------------------------+
+| Set Current Player to "Man"  |
++-------------------------------+
+          |
+          v
++---------------------------+
+|       Main Game Loop      |
+|   (Repeat until End Game) |
++---------------------------+
+          |
+          v
++------------------------------------+
+| Is Current Player "Man"?           |
+| (0 = Man, 1 = PC)                  |
++------------------------------------+
+        |                     |
+       Yes                   No
+        |                     |
++----------------+     +----------------+
+| MAN-TURN       |     | PC-TURN        |
+| (Prompt User   |     | (Simple AI to  |
+|  for Input)    |     |  Find Best Move|
++----------------+     +----------------+
+        |                     |
+        v                     v
++------------------------------------+
+| Display Updated Board              |
++------------------------------------+
+          |
+          v
++------------------------------------+
+| Check for Winner                   |
+| (Rows, Columns, Diagonals)         |
++------------------------------------+
+          |
+          v
++------------------------------+
+| Winner Found?               |
+| (CHECK-WINNER != 0)         |
++------------------------------+
+        |                     |
+       Yes                   No
+        |                     |
++--------------------+    +------------------+
+| Announce Winner    |    | Check if Board  |
+| and Exit Game      |    | is Full         |
++--------------------+    +------------------+
+                               |
+                               v
+                     +----------------------+
+                     | Is Board Full?      |
+                     +----------------------+
+                             |
+                    +--------+--------+
+                   No                 Yes
+                    |                   |
+                    v                   v
+          +------------------+   +--------------------+
+          | Switch Player    |   | Announce Draw      |
+          | (Toggle 0 <-> 1) |   | and Exit Game      |
+          +------------------+   +--------------------+
+                    |
+                    v
+          +------------------+
+          | Repeat Game Loop |
+          +------------------+
+```
+
 TTT typically refers to "Tic-Tac-Toe," which is a classic paper-and-pencil game played on a grid of 3x3 squares. The game is also known as "Noughts and Crosses" or "Xs and Os" in some regions. The objective of Tic-Tac-Toe is to form a line of three matching symbols, either X or O, horizontally, vertically, or diagonally.
 
 Here are the basic rules of Tic-Tac-Toe:
