@@ -1,0 +1,729 @@
+; TIC-TAC-TOE for TEC-1B Z80 Computer
+; Port Definitions
+PORT_KEYBD    equ 0x00   ; Keypad input port
+PORT_DISP_SEL equ 0x01   ; Display selector port
+PORT_DISP_DAT equ 0x02   ; Display data port
+
+org 0x0000               ; Program starts at memory address 0000h
+
+start:
+    ld sp, 0x7FFF        ; Initialize stack pointer to top of RAM
+    
+    ; Initialize game board to empty (9 bytes at 8000h-8008h)
+    ld hl, 0x8000        ; HL points to start of board
+    ld b, 9              ; 9 cells to clear
+    xor a                ; A = 0 (empty cell value)
+init_loop:
+    ld (hl), a           ; Store 0 in current cell
+    inc hl               ; Move to next cell
+    djnz init_loop       ; Repeat until all cells cleared
+    
+    ; Initialize game variables
+    ld a, 0              
+    ld (0x8009), a       ; Current player (0=human, 1=computer)
+    ld (0x800A), a       ; Display mode (0=show top rows, 1=show bottom row+info)
+    ld a, 0x55           
+    ld (0x800B), a       ; Initialize random seed
+
+main_loop:
+    call display_board   ; Update display
+    call check_winner    ; Check if there's a winner
+    jr nz, game_over     ; If winner found (NZ), end game
+    call check_draw      ; Check for draw condition
+    jr z, game_draw      ; If draw (Z), end game
+    
+    ld a, (0x8009)       ; Load current player
+    or a                 ; Test if human (0) or computer (1)
+    jr z, human_turn     ; Jump to human turn if 0
+
+computer_turn:
+    call computer_move   ; Execute computer's move
+    jr main_loop         ; Return to main loop
+
+human_turn:
+    call get_human_move  ; Get human player's move
+    jr main_loop         ; Return to main loop
+
+game_over:
+    call display_result  ; Show winner announcement
+    jr start             ; Restart game
+
+game_draw:
+    call display_draw    ; Show draw announcement
+    jr start             ; Restart game
+
+; ----------------------------
+; Display handling subroutines
+; ----------------------------
+display_board:
+    push bc              ; Preserve registers
+    push hl
+    ld a, (0x800A)       ; Load current display mode
+    or a                 ; Test display mode
+    jr nz, disp_mode1    ; Jump if mode 1 (show bottom row + info)
+
+disp_mode0:
+    ; Display mode 0 - show top two rows (6 cells)
+    ld b, 6              ; 6 cells to display
+    ld hl, 0x8000        ; Start at first cell
+    call disp_row        ; Display cells
+    pop hl               ; Restore registers
+    pop bc
+    ret
+
+disp_mode1:
+    ; Display mode 1 - show bottom row + player info
+    ld b, 3              ; 3 cells (bottom row)
+    ld hl, 0x8006        ; Start at 7th cell (index 6)
+    call disp_row        ; Display bottom row
+    
+    ; Display player info
+    ld a, 3              ; Select 4th display (index 3)
+    out (PORT_DISP_SEL), a
+    ld a, 0x73           ; Segment pattern for 'P' (player indicator)
+    out (PORT_DISP_DAT), a
+    
+    ld a, 4              ; Select 5th display (index 4)
+    out (PORT_DISP_SEL), a
+    ld a, (0x8009)       ; Load current player (0/1)
+    add a, 0x30          ; Convert to ASCII '0'/'1'
+    call convert_to_7seg ; Convert to 7-segment pattern
+    out (PORT_DISP_DAT), a
+    
+    pop hl               ; Restore registers
+    pop bc
+    ret
+
+disp_row:
+    ; Display a row of cells
+    ; Input: HL = starting cell address, B = number of cells
+    push bc              ; Preserve counter
+    ld c, 0              ; C = display position counter
+disp_loop:
+    ld a, c              ; Get current display position
+    out (PORT_DISP_SEL), a ; Select display
+    ld a, (hl)           ; Get cell value
+    call convert_to_7seg ; Convert to 7-segment pattern
+    out (PORT_DISP_DAT), a ; Output to display
+    inc hl               ; Move to next cell
+    inc c                ; Move to next display position
+    djnz disp_loop       ; Repeat for all cells
+    pop bc               ; Restore counter
+    ret
+
+convert_to_7seg:
+    ; Convert cell value to 7-segment pattern
+    ; Input: A = cell value (0=empty, 1=player, 2=computer)
+    ; Output: A = 7-segment pattern
+    push hl              ; Preserve HL
+    or a                 ; Test value
+    jr z, blank          ; Jump if empty cell
+    dec a                ; Test player/computer
+    jr z, player_cell    ; Jump if player (1)
+    
+    ; Computer cell (show '2')
+    ld a, 0x5B           ; Segment pattern for '2' (a,b,d,e,g)
+    pop hl
+    ret
+
+player_cell:
+    ld a, 0x06           ; Segment pattern for '1' (b,c)
+    pop hl
+    ret
+
+blank:
+    xor a                ; All segments off (0x00)
+    pop hl
+    ret
+
+; --------------------------
+; Human input handling
+; --------------------------
+get_human_move:
+    push bc              ; Preserve registers
+    push hl
+.wait_key:
+    call scan_keypad     ; Get key press
+    cp 0xFF              ; Check if no key pressed
+    jr z, .wait_key      ; Wait for valid input
+    
+    ; Convert ASCII key to board index
+    sub 0x30             ; Convert from ASCII to number (0-8)
+    cp 9                 ; Validate input
+    jr nc, .wait_key     ; If invalid (>=9), wait for another key
+    
+    ; Check if selected cell is empty
+    ld hl, 0x8000        ; Board start
+    ld e, a              ; Store index in E
+    ld d, 0              ; Clear upper byte
+    add hl, de           ; HL points to selected cell
+    ld a, (hl)           ; Get cell value
+    or a                 ; Test if empty
+    jr nz, .wait_key     ; If occupied, wait for another key
+    
+    ; Valid move - update board
+    ld (hl), 1           ; Mark cell as player's (1)
+    
+    ; Toggle display mode
+    ld a, (0x800A)       
+    xor 1                ; Flip display mode
+    ld (0x800A), a       
+    
+    ; Switch to computer's turn
+    ld a, 1              
+    ld (0x8009), a       ; Set current player to computer
+    
+    pop hl               ; Restore registers
+    pop bc
+    ret
+
+; --------------------------
+; Computer AI logic
+; --------------------------
+computer_move:
+    push bc              ; Preserve registers
+    push hl
+    
+    ; Find winning move or block player
+    call find_winning_move   ; Try to win
+    jr nc, .try_block       ; If no win possible, try blocking
+    jr .make_move          ; If win found, make the move
+
+.try_block:
+    call find_blocking_move ; Try to block player
+    jr nc, .try_center     ; If no block needed, try center
+    jr .make_move          ; If block found, make the move
+
+.try_center:
+    ; Try to take center
+    ld hl, 0x8004        ; Center cell (index 4)
+    ld a, (hl)           ; Get current value
+    or a                 ; Test if empty
+    jr nz, .try_corners   ; If occupied, try corners
+    ld (hl), 2           ; Claim center for computer
+    jr .finish            ; Move complete
+
+.try_corners:
+    ; Try to claim a corner
+    ld b, 4              ; 4 corners to check
+    ld hl, corners       ; Corner indices list
+.corner_loop:
+    ld e, (hl)           ; Get corner index
+    ld d, 0              
+    push hl              
+    ld hl, 0x8000        ; Board start
+    add hl, de           ; HL points to corner cell
+    ld a, (hl)           ; Get cell value
+    pop hl              
+    or a                 ; Test if empty
+    jr z, .take_corner   ; Jump if corner available
+    inc hl               ; Next corner index
+    djnz .corner_loop    ; Check all corners
+    jr .make_random      ; If no corners, make random move
+
+.take_corner:
+    push hl              ; Save corner index pointer
+    ld hl, 0x8000        ; Board start
+    ld e, (hl)           ; Get corner index again
+    ld d, 0
+    add hl, de           ; Point to corner
+    ld (hl), 2           ; Claim corner
+    pop hl
+    jr .finish           ; Move complete
+
+.make_random:
+    ; Make random move in any empty cell
+    call find_empty_cell
+    jr .finish
+
+.make_move:
+    ; A contains the chosen move index
+    ld hl, 0x8000
+    ld e, a
+    ld d, 0
+    add hl, de
+    ld (hl), 2           ; Mark cell as computer's
+
+.finish:
+    ; Toggle display mode
+    ld a, (0x800A)       
+    xor 1                ; Flip display mode
+    ld (0x800A), a       
+    
+    ; Switch to human's turn
+    xor a                ; A = 0
+    ld (0x8009), a       ; Set current player to human
+    
+    pop hl               ; Restore registers
+    pop bc
+    ret
+
+find_empty_cell:
+    ; Find any empty cell (for random move)
+    ; Returns: Cell index in A
+    push bc
+    ld b, 20             ; Maximum attempts
+.try_again:
+    call rand8           ; Get random number
+    and 0x0F             ; Limit to 0-15
+    cp 9                 ; Check if valid cell index
+    jr nc, .try_again    ; Try again if invalid
+    
+    ; Check if cell is empty
+    ld hl, 0x8000
+    ld e, a
+    ld d, 0
+    add hl, de
+    ld a, (hl)           ; Get cell value
+    or a                 ; Test if empty
+    jr nz, .try_again    ; Try again if occupied
+    
+    ld a, e              ; Return cell index
+    pop bc
+    ret
+
+find_winning_move:
+    ; Find a winning move for computer (player 2)
+    ; Returns: NC if no winning move, C if found (move in A)
+    push bc              ; Preserve registers
+    push de
+    push hl
+    
+    ld c, 2             ; Look for computer's winning move (player 2)
+    call find_critical_move
+    
+    pop hl              ; Restore registers
+    pop de
+    pop bc
+    ret                 ; Carry and A already set by find_critical_move
+
+find_blocking_move:
+    ; Find a move to block player's win (player 1)
+    ; Returns: NC if no blocking needed, C if found (move in A)
+    push bc             ; Preserve registers
+    push de
+    push hl
+    
+    ld c, 1             ; Look for player's winning move (player 1)
+    call find_critical_move
+    
+    pop hl              ; Restore registers
+    pop de
+    pop bc
+    ret                 ; Carry and A already set by find_critical_move
+
+find_critical_move:
+    ; Find a critical move (winning or blocking)
+    ; Input: C = player number to check for
+    ; Returns: NC if no move found, C if found (move in A)
+    
+    ; Check rows
+    ld b, 3             ; 3 rows to check
+    ld hl, 0x8000       ; Start of board
+.check_rows:
+    push bc             ; Save counters
+    push hl             ; Save board position
+    call check_critical_line
+    pop hl              ; Restore position
+    pop bc              ; Restore counters
+    ret c               ; Return if move found
+    
+    ; Move to next row
+    ld de, 3
+    add hl, de
+    djnz .check_rows
+    
+    ; Check columns
+    ld b, 3             ; 3 columns to check
+    ld hl, 0x8000       ; Start of board
+.check_cols:
+    push bc             ; Save counters
+    push hl             ; Save board position
+    
+    ; Get column cells
+    ld d, h             ; Save start position
+    ld e, l
+    ld b, (hl)          ; First cell
+    inc de              ; Next row
+    inc de
+    inc de
+    ld a, (de)          ; Second cell
+    ld d, a
+    inc de              ; Next row
+    inc de
+    inc de
+    ld a, (de)          ; Third cell
+    ld e, a
+    
+    ; Count matching cells and find empty
+    call check_critical_cells
+    
+    pop hl              ; Restore position
+    pop bc              ; Restore counters
+    ret c               ; Return if move found
+    
+    inc hl              ; Next column
+    djnz .check_cols
+    
+    ; Check diagonal 1 (top-left to bottom-right)
+    ld hl, 0x8000       ; Top-left
+    ld b, (hl)          ; First cell
+    ld de, 0x8004       ; Center
+    ld a, (de)          ; Second cell
+    ld d, a
+    ld hl, 0x8008       ; Bottom-right
+    ld a, (hl)          ; Third cell
+    ld e, a
+    call check_critical_cells
+    ret c               ; Return if move found
+    
+    ; Check diagonal 2 (top-right to bottom-left)
+    ld hl, 0x8002       ; Top-right
+    ld b, (hl)          ; First cell
+    ld de, 0x8004       ; Center
+    ld a, (de)          ; Second cell
+    ld d, a
+    ld hl, 0x8006       ; Bottom-left
+    ld a, (hl)          ; Third cell
+    ld e, a
+    call check_critical_cells
+    ret c               ; Return if move found
+    
+    ; No critical move found
+    scf                 ; Clear carry
+    ccf
+    ret
+
+check_critical_line:
+    ; Check three consecutive cells for critical move
+    ; Input: HL = start of line, C = player number
+    ; Returns: NC if no move, C if found (move in A)
+    ld b, (hl)          ; First cell
+    inc hl
+    ld d, (hl)          ; Second cell
+    inc hl
+    ld e, (hl)          ; Third cell
+    dec hl              ; Move back to start
+    dec hl
+    
+check_critical_cells:
+    ; Check three cells for critical move
+    ; Input: B,D,E = cell values, C = player number
+    ; Returns: NC if no move, C if found (move in A)
+    
+    ; Count player's cells and find empty cell
+    ld a, 0             ; Counter for player's cells
+    ld h, 0xFF          ; Empty cell position (-1)
+    
+    ; Check first cell
+    ld a, b
+    or a                ; Empty?
+    jr z, .empty1
+    cp c                ; Player's?
+    jr nz, .check2
+    inc a               ; Count it
+    jr .check2
+.empty1:
+    ld h, 0             ; Remember empty position
+    
+.check2:
+    ; Check second cell
+    ld a, d
+    or a                ; Empty?
+    jr z, .empty2
+    cp c                ; Player's?
+    jr nz, .check3
+    inc a               ; Count it
+    jr .check3
+.empty2:
+    ld h, 1             ; Remember empty position
+    
+.check3:
+    ; Check third cell
+    ld a, e
+    or a                ; Empty?
+    jr z, .empty3
+    cp c                ; Player's?
+    jr nz, .done
+    inc a               ; Count it
+    jr .done
+.empty3:
+    ld h, 2             ; Remember empty position
+    
+.done:
+    ; Check if we found a critical move
+    cp 2                ; Two player cells?
+    jr nz, .no_move
+    
+    ; Found critical move
+    ld a, h             ; Get empty position
+    cp 0xFF             ; Valid position?
+    jr z, .no_move
+    scf                 ; Set carry (move found)
+    ret
+    
+.no_move:
+    scf                 ; Clear carry
+    ccf
+    ret
+
+; --------------------------
+; Game logic subroutines
+; --------------------------
+check_winner:
+    ; Check for winning condition
+    ; Returns NZ if winner found (A=player number)
+    push bc              ; Preserve registers
+    push hl
+    
+    ; Check rows
+    ld b, 3              ; 3 rows to check
+    ld hl, 0x8000        ; Start at first cell
+.row_loop:
+    push bc              ; Save row counter
+    ld a, (hl)           ; Get first cell in row
+    or a                 ; Skip if empty
+    jr z, .next_row      
+    ld d, a              ; Store player number
+    inc hl               ; Second cell
+    ld a, (hl)           
+    cp d                 ; Compare with first
+    jr nz, .next_row     ; Skip if different
+    inc hl               ; Third cell
+    ld a, (hl)           
+    cp d                 ; Compare with first
+    jr z, .winner        ; Jump if winner found
+.next_row:
+    pop bc               ; Restore row counter
+    ld a, 3              ; Move to next row
+    add a, l
+    ld l, a
+    jr nc, .no_carry
+    inc h
+.no_carry:
+    djnz .row_loop       
+    
+    ; Check columns
+    ld b, 3              ; 3 columns to check
+    ld hl, 0x8000        ; Start at first cell
+.col_loop:
+    ld a, (hl)           ; Get top cell
+    or a                 ; Skip if empty
+    jr z, .next_col
+    ld d, a              ; Store player number
+    ld e, l              ; Save column position
+    ld a, l
+    add a, 3             ; Move down one row
+    ld l, a
+    ld a, (hl)           ; Get middle cell
+    cp d                 ; Compare with top
+    jr nz, .col_restore  ; Skip if different
+    ld a, l
+    add a, 3             ; Move down one row
+    ld l, a
+    ld a, (hl)           ; Get bottom cell
+    cp d                 ; Compare with top
+    jr z, .winner        ; Jump if winner found
+.col_restore:
+    ld l, e              ; Restore column position
+.next_col:
+    inc l                ; Move to next column
+    djnz .col_loop       
+    
+    ; Check diagonals
+    ld hl, 0x8000        ; Start at top-left
+    ld a, (hl)           ; Get top-left
+    or a                 ; Skip if empty
+    jr z, .diag2
+    ld d, a              ; Store player number
+    ld a, l
+    add a, 4             ; Move to center
+    ld l, a
+    ld a, (hl)           ; Get center
+    cp d                 ; Compare with top-left
+    jr nz, .diag2        ; Skip if different
+    ld a, l
+    add a, 4             ; Move to bottom-right
+    ld l, a
+    ld a, (hl)           ; Get bottom-right
+    cp d                 ; Compare with top-left
+    jr z, .winner        ; Jump if winner found
+    
+.diag2:
+    ld hl, 0x8002        ; Start at top-right
+    ld a, (hl)           ; Get top-right
+    or a                 ; Skip if empty
+    jr z, .no_winner
+    ld d, a              ; Store player number
+    ld a, l
+    add a, 2             ; Move to center
+    ld l, a
+    ld a, (hl)           ; Get center
+    cp d                 ; Compare with top-right
+    jr nz, .no_winner    ; Skip if different
+    ld a, l
+    add a, 2             ; Move to bottom-left
+    ld l, a
+    ld a, (hl)           ; Get bottom-left
+    cp d                 ; Compare with top-right
+    jr z, .winner        ; Jump if winner found
+
+.no_winner:
+    pop hl               ; Restore registers
+    pop bc
+    xor a                ; Set Z flag (no winner)
+    ret
+
+.winner:
+    pop bc               ; Clean up stack from row counter
+    pop hl               ; Restore registers
+    pop bc
+    ld a, d              ; Return winning player number in A
+    or a                 ; Clear Z flag (winner found)
+    ret
+
+check_draw:
+    ; Check if board is full (draw)
+    ; Returns Z=1 if draw (board full), Z=0 if not
+    push bc              ; Preserve registers
+    push hl
+    
+    ld hl, 0x8000        ; Start of board
+    ld b, 9              ; Check all 9 cells
+.draw_loop:
+    ld a, (hl)           ; Get cell value
+    or a                 ; Test if empty
+    jr z, .not_full      ; If any empty, not full
+    inc hl               ; Next cell
+    djnz .draw_loop      
+    
+    ; Board is full (draw)
+    pop hl               ; Restore registers
+    pop bc
+    xor a                ; Set Z flag (draw)
+    ret
+
+.not_full:
+    pop hl               ; Restore registers
+    pop bc
+    ld a, 1              ; Clear Z flag (not draw)
+    or a
+    ret
+
+; --------------------------
+; Display result routines
+; --------------------------
+display_result:
+    ; Display winner
+    ; Input: A = winning player (1=human, 2=computer)
+    push af              ; Save winner
+    
+    ; Clear all displays
+    ld b, 6              ; 6 displays to clear
+    xor a                ; A = 0
+.clear_loop:
+    out (PORT_DISP_SEL), a
+    out (PORT_DISP_DAT), a
+    inc a
+    djnz .clear_loop
+    
+    ; Show "WIN" on first three displays
+    ld a, 0              ; First display
+    out (PORT_DISP_SEL), a
+    ld a, 0x1C           ; 'W'
+    out (PORT_DISP_DAT), a
+    
+    ld a, 1              ; Second display
+    out (PORT_DISP_SEL), a
+    ld a, 0x06           ; 'I'
+    out (PORT_DISP_DAT), a
+    
+    ld a, 2              ; Third display
+    out (PORT_DISP_SEL), a
+    ld a, 0x37           ; 'N'
+    out (PORT_DISP_DAT), a
+    
+    ; Show winner number
+    ld a, 3              ; Fourth display
+    out (PORT_DISP_SEL), a
+    pop af               ; Restore winner number
+    call convert_to_7seg
+    out (PORT_DISP_DAT), a
+    
+    ; Delay before restart
+    call delay_1sec
+    ret
+
+display_draw:
+    ; Display draw message
+    
+    ; Clear all displays
+    ld b, 6              ; 6 displays to clear
+    xor a                ; A = 0
+.clear_loop:
+    out (PORT_DISP_SEL), a
+    out (PORT_DISP_DAT), a
+    inc a
+    djnz .clear_loop
+    
+    ; Show "drA" (best we can do with 7-segment)
+    ld a, 0              ; First display
+    out (PORT_DISP_SEL), a
+    ld a, 0x5E           ; 'd'
+    out (PORT_DISP_DAT), a
+    
+    ld a, 1              ; Second display
+    out (PORT_DISP_SEL), a
+    ld a, 0x31           ; 'r'
+    out (PORT_DISP_DAT), a
+    
+    ld a, 2              ; Third display
+    out (PORT_DISP_SEL), a
+    ld a, 0x77           ; 'A'
+    out (PORT_DISP_DAT), a
+    
+    ; Delay before restart
+    call delay_1sec
+    ret
+
+; --------------------------
+; Utility functions
+; --------------------------
+scan_keypad:
+    ; Read keypad - returns ASCII in A (0xFF if none)
+    in a, (PORT_KEYBD)   ; Read keypad port
+    cp 0xFF              ; Test for no key pressed
+    ret                  ; Return result
+
+rand8:
+    ; Simple pseudo-random number generator
+    ; Returns random byte in A
+    push hl              ; Preserve HL
+    ld hl, 0x800B        ; Random seed location
+    ld a, (hl)           ; Load current seed
+    rrca                 ; Rotate right
+    rrca                 
+    rrca                 
+    xor 0x1F             ; XOR with magic number
+    ld (hl), a           ; Store new seed
+    pop hl               ; Restore HL
+    ret
+
+delay_1sec:
+    ; Delay for approximately 1 second
+    push bc              ; Preserve BC
+    push de              ; Preserve DE
+    ld bc, 0xFFFF        ; Maximum 16-bit value
+.delay_loop:
+    dec bc               ; Decrement counter
+    ld a, b              ; Check if BC is zero
+    or c
+    jr nz, .delay_loop   ; Continue if not zero
+    pop de               ; Restore DE
+    pop bc               ; Restore BC
+    ret
+
+corners: 
+    db 0, 2, 6, 8   ; Corner indices (top-left, top-right, bottom-left, bottom-right)
+
+end:
