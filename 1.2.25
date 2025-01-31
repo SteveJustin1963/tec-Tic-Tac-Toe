@@ -1,0 +1,67 @@
+```
+// Init board and players
+[1 2 3 4 5 6 7 8 9]b!
+1p! 2c!
+
+// Print board with numbers/X/O
+:P
+`Board:` /N
+b0?n! n1=(`1`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+` `
+b1?n! n2=(`2`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+` `
+b2?n! n3=(`3`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+/N
+b3?n! n4=(`4`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+` `
+b4?n! n5=(`5`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+` `
+b5?n! n6=(`6`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+/N
+b6?n! n7=(`7`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+` `
+b7?n! n8=(`8`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+` `
+b8?n! n9=(`9`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
+/N /N;
+
+// Get player move
+:G
+`Your move (1-9):` /N
+/K n!                    // Get key and store in n
+n 48 - k!                // Convert ASCII to number
+k 1 < k 9 > |(          // If invalid range
+  `Invalid move` /N
+  G                     // Try again
+)
+k 1 - i!                // Convert to index
+b i? k = /F(           // If position taken
+  `Position taken` /N
+  G                    // Try again
+)
+p b i!;                // Place move
+
+// Computer move
+:M
+9(b/i? i 1 + = (      // Find empty space
+  c b i!              // Place move
+  /U/W                // Exit loop
+));
+
+// Main game
+:S
+`TIC TAC TOE` /N /N
+P                     // Show initial board
+/U(
+  G                   // Get player move
+  P                   // Show board
+  M                   // Computer move
+  P                   // Show board
+);
+
+S
+
+```
+////////////////////
+
+```
