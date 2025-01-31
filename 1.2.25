@@ -1,105 +1,4 @@
-```
-x
-```
-
-
-```
-// Main game variables
-// b - board array (stores 9 positions)
-// m - current move
-// w - win status
-// p - current player (1=X, 2=O)
-
-// Display board function
-:D
-`
-     Tic-Tac-Toe
-` /N
-b 0? /C ` | ` b 1? /C ` | ` b 2? /C /N
-`---+---+---` /N
-b 3? /C ` | ` b 4? /C ` | ` b 5? /C /N
-`---+---+---` /N
-b 6? /C ` | ` b 7? /C ` | ` b 8? /C /N /N
-;
-
-// Get player move function
-:M
-/U (
-  `Your move (1-9): ` 
-  /K 48 - m!       // Convert ASCII to number (1-9)
-  m 1 < m 9 > | (`Invalid move - enter 1-9` /N) /E (
-    m 1 - b ? 88 = m 1 - b ? 79 = | (`Position taken!` /N) /E ( /F /W )
-  )
-)
-;
-
-// Check win function for player p
-:W
-// Check rows
-0 w!
-3 (
-  /i 3 * n!        // n = row start index
-  b n ? p = b n 1 + ? p = & b n 2 + ? p = & w |!
-)
-// Check columns
-3 (
-  /i n!            // n = column index
-  b n ? p = b n 3 + ? p = & b n 6 + ? p = & w |!
-)
-// Check diagonals
-b 0? p = b 4? p = & b 8? p = & w |!
-b 2? p = b 4? p = & b 6? p = & w |!
-;
-
-// Check draw function
-:Y
-/T d!
-9 (
-  b /i ? 88 = b /i ? 79 = | d &!
-)
-;
-
-// Main game function
-:G
-// Initialize board with numbers 1-9
-[49 50 51 52 53 54 55 56 57] b!
-/U (
-  D               // Display board
-  1 p!            // Player X turn
-  M               // Get move
-  88 b m 1 - ?!   // Place X
-  D               // Show move
-  W               // Check win
-  w /T = (`Player X wins!` /N /F /W) /E (
-    Y d /T = (`Draw game!` /N /F /W) /E (
-      2 p!        // Player O turn
-      `Computer thinking...` /N
-      // Simple computer move - take first available space
-      9 (
-        b /i ? 88 = b /i ? 79 = | /F = (/i 1 + m!) 
-      )
-      79 b m 1 - ?!  // Place O
-      D              // Show move
-      W              // Check win
-      w /T = (`Computer wins!` /N /F /W) /E (
-        Y d /T = (`Draw game!` /N /F /W)
-      )
-    )
-  )
-)
-;
-
-// Start game
-:S
-/U (
-  G
-  `Play again (y/n)? `
-  /K 110 = /W     // Break if 'n'
-)
-;
-
-```
-
+matlab
 ```
 function tictactoe()
     while true  % Main game loop for resets
@@ -209,5 +108,129 @@ function draw = check_draw(board)
     draw = all(board == 'X' | board == 'O');
 end
 ```
+
+
+
+
+1
+```
+// Main game variables
+// b - board array (stores 9 positions)
+// m - current move
+// w - win status
+// p - current player (1=X, 2=O)
+
+// Display board function
+:D
+`
+     Tic-Tac-Toe
+` /N
+b 0? /C ` | ` b 1? /C ` | ` b 2? /C /N
+`---+---+---` /N
+b 3? /C ` | ` b 4? /C ` | ` b 5? /C /N
+`---+---+---` /N
+b 6? /C ` | ` b 7? /C ` | ` b 8? /C /N /N
+;
+
+// Get player move function
+:M
+/U (
+  `Your move (1-9): ` 
+  /K 48 - m!       // Convert ASCII to number (1-9)
+  m 1 < m 9 > | (`Invalid move - enter 1-9` /N) /E (
+    m 1 - b ? 88 = m 1 - b ? 79 = | (`Position taken!` /N) /E ( /F /W )
+  )
+)
+;
+
+// Check win function for player p
+:W
+// Check rows
+0 w!
+3 (
+  /i 3 * n!        // n = row start index
+  b n ? p = b n 1 + ? p = & b n 2 + ? p = & w |!
+)
+// Check columns
+3 (
+  /i n!            // n = column index
+  b n ? p = b n 3 + ? p = & b n 6 + ? p = & w |!
+)
+// Check diagonals
+b 0? p = b 4? p = & b 8? p = & w |!
+b 2? p = b 4? p = & b 6? p = & w |!
+;
+
+// Check draw function
+:Y
+/T d!
+9 (
+  b /i ? 88 = b /i ? 79 = | d &!
+)
+;
+
+// Main game function
+:G
+// Initialize board with numbers 1-9
+[49 50 51 52 53 54 55 56 57] b!
+/U (
+  D               // Display board
+  1 p!            // Player X turn
+  M               // Get move
+  88 b m 1 - ?!   // Place X
+  D               // Show move
+  W               // Check win
+  w /T = (`Player X wins!` /N /F /W) /E (
+    Y d /T = (`Draw game!` /N /F /W) /E (
+      2 p!        // Player O turn
+      `Computer thinking...` /N
+      // Simple computer move - take first available space
+      9 (
+        b /i ? 88 = b /i ? 79 = | /F = (/i 1 + m!) 
+      )
+      79 b m 1 - ?!  // Place O
+      D              // Show move
+      W              // Check win
+      w /T = (`Computer wins!` /N /F /W) /E (
+        Y d /T = (`Draw game!` /N /F /W)
+      )
+    )
+  )
+)
+;
+
+// Start game
+:S
+/U (
+  G
+  `Play again (y/n)? `
+  /K 110 = /W     // Break if 'n'
+)
+;
+
+```
+
+2
+Ah, I see the issue - after receiving the move, the code needs to properly update the board position and validate the input. Let me fix that by modifying the :M function and game logic.
+
+
+
+Key fixes in this version:
+
+1. Added better move validation in :M function
+2. Separated computer move logic into :C function
+3. Fixed board update logic to properly place X and O
+4. Added v variable as a valid move flag
+5. Fixed array indexing (now properly converts 1-9 input to 0-8 index)
+6. Made sure board displays after each move
+7. Improved player/computer character handling
+
+To play:
+1. Type `S` to start
+2. Enter a number 1-9 for your move
+3. The board will update after each move
+4. Game will detect wins and draws
+
+
 
 
