@@ -1,67 +1,111 @@
 ```
-// Init board and players
-[1 2 3 4 5 6 7 8 9]b!
-1p! 2c!
+function tictactoe()
+    while true  % Main game loop for resets
+        % Initialize board
+        board = char('1':'9');
+        game_over = false;
+        
+        while ~game_over
+            % Display board
+            display_game(board);
+            
+            % Player move
+            move = get_player_move(board);
+            board(move) = 'X';
+            display_game(board);
+            
+            % Check for player win
+            if check_win(board, 'X')
+                pause(1);  % Pause to show final position
+                fprintf('\n*** YOU WIN! ***\n');
+                fprintf('\nPress any key to play again...\n');
+                pause;
+                break;
+            elseif check_draw(board)
+                pause(1);
+                fprintf('\n*** DRAW GAME! ***\n');
+                fprintf('\nPress any key to play again...\n');
+                pause;
+                break;
+            end
+            
+            % Computer move
+            fprintf('Computer thinking...\n');
+            pause(1);
+            computer_move = make_computer_move(board);
+            board(computer_move) = 'O';
+            display_game(board);
+            
+            % Check for computer win
+            if check_win(board, 'O')
+                pause(1);
+                fprintf('\n*** COMPUTER WINS! ***\n');
+                fprintf('\nPress any key to play again...\n');
+                pause;
+                break;
+            elseif check_draw(board)
+                pause(1);
+                fprintf('\n*** DRAW GAME! ***\n');
+                fprintf('\nPress any key to play again...\n');
+                pause;
+                break;
+            end
+        end
+    end
+end
 
-// Print board with numbers/X/O
-:P
-`Board:` /N
-b0?n! n1=(`1`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-` `
-b1?n! n2=(`2`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-` `
-b2?n! n3=(`3`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-/N
-b3?n! n4=(`4`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-` `
-b4?n! n5=(`5`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-` `
-b5?n! n6=(`6`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-/N
-b6?n! n7=(`7`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-` `
-b7?n! n8=(`8`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-` `
-b8?n! n9=(`9`)/E(np=(`X`)/E(nc=(`O`)/E(n/C)))
-/N /N;
+function display_game(board)
+    clc;
+    fprintf('\n     Tic-Tac-Toe\n\n');
+    fprintf(' %c | %c | %c \n', board(1), board(2), board(3));
+    fprintf('---+---+---\n');
+    fprintf(' %c | %c | %c \n', board(4), board(5), board(6));
+    fprintf('---+---+---\n');
+    fprintf(' %c | %c | %c \n', board(7), board(8), board(9));
+    fprintf('\n');
+end
 
-// Get player move
-:G
-`Your move (1-9):` /N
-/K n!                    // Get key and store in n
-n 48 - k!                // Convert ASCII to number
-k 1 < k 9 > |(          // If invalid range
-  `Invalid move` /N
-  G                     // Try again
-)
-k 1 - i!                // Convert to index
-b i? k = /F(           // If position taken
-  `Position taken` /N
-  G                    // Try again
-)
-p b i!;                // Place move
+function move = get_player_move(board)
+    while true
+        move = input('Your move (1-9): ');
+        if ~isnumeric(move) || move < 1 || move > 9
+            fprintf('Invalid move - please enter 1-9\n');
+            continue;
+        end
+        if board(move) == 'X' || board(move) == 'O'
+            fprintf('That position is already taken!\n');
+            continue;
+        end
+        break;
+    end
+end
 
-// Computer move
-:M
-9(b/i? i 1 + = (      // Find empty space
-  c b i!              // Place move
-  /U/W                // Exit loop
-));
+function move = make_computer_move(board)
+    available = find(board ~= 'X' & board ~= 'O');
+    if ~isempty(available)
+        move = available(1);
+    else
+        move = -1;
+    end
+end
 
-// Main game
-:S
-`TIC TAC TOE` /N /N
-P                     // Show initial board
-/U(
-  G                   // Get player move
-  P                   // Show board
-  M                   // Computer move
-  P                   // Show board
-);
+function won = check_win(board, player)
+    wins = [1 2 3; 4 5 6; 7 8 9;    % Rows
+            1 4 7; 2 5 8; 3 6 9;    % Columns
+            1 5 9; 3 5 7];          % Diagonals
+            
+    for i = 1:size(wins, 1)
+        if all(board(wins(i,:)) == player)
+            won = true;
+            return;
+        end
+    end
+    won = false;
+end
 
-S
-
+function draw = check_draw(board)
+    draw = all(board == 'X' | board == 'O');
+end
 ```
-////////////////////
 
-```
+
