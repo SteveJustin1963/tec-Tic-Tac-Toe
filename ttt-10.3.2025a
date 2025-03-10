@@ -1,0 +1,246 @@
+// Allocate memory for the board
+3 3 * /A !               // Allocate memory for the board
+0 b !                   // Initialize player (0 for X, 1 for O)
+0 c !                   // Initialize move count
+
+// Function to print the board
+:BP
+  0 i !                  // Initialize row index
+  3 (                    // Loop through rows
+    0 j !                  // Initialize column index
+    3 (                    // Loop through columns
+      i 3 * j + b ?        // Get board value
+      = 0 = (              // If empty
+        ` `
+`
+      ) /E (
+        1 = (              // If O
+          `O`
+        ) /E (
+          `X`
+        )
+      )
+      32 /C                // Print space
+    )
+    /N                     // Newline after each row
+  )
+;
+
+// Function to check if a player has won
+:W
+  0 i !                  // Initialize row index
+  3 (                    // Loop through rows
+    i 3 * 0 + b ?        // Get first cell in row
+    i 3 * 1 + b ?        // Get second cell in row
+    i 3 * 2 + b ?        // Get third cell in row
+    = = (              // If all three are equal and not empty
+      1
+    ) /E (
+      0
+    )
+  )
+  0 i !                  // Reset row index
+  3 (                    // Loop through columns
+    0 j !                  // Initialize column index
+    i 3 * j + b ?        // Get first cell in column
+    i 3 * (j 1 +) + b ?        // Get second cell in column
+    i 3 * (j 2 +) + b ?        // Get third cell in column
+    = = (              // If all three are equal and not empty
+      1
+    ) /E (
+      0
+    )
+  )
+  0 i !                  // Reset row index
+  0 j !                  // Reset column index
+  0 i ? b ?              // Get top-left cell
+  4 i ? b ?              // Get center cell
+  8 i ? b ?              // Get bottom-right cell
+  = = (              // If all three are equal and not empty
+    1
+  ) /E (
+    0
+  )
+  0 i !                  // Reset row index
+  0 j !                  // Reset column index
+  2 i ? b ?              // Get top-right cell
+  4 i ? b ?              // Get center cell
+  6 i ? b ?              // Get bottom-left cell
+  = = (              // If all three are equal and not empty
+    1
+  ) /E (
+    0
+  )
+;
+
+// Function to find a winning move for the current player
+:FWM
+  0 i !                  // Initialize row index
+  3 (                    // Loop through rows
+    i 3 * 0 + b ?        // Get first cell in row
+    i 3 * 1 + b ?        // Get second cell in row
+    i 3 * 2 + b ?        // Get third cell in row
+    = 0 = (              // If all three are empty
+      1
+    ) /E (
+      0
+    )
+  )
+  0 i !                  // Reset row index
+  3 (                    // Loop through columns
+    0 j !                  // Initialize column index
+    i 3 * j + b ?        // Get first cell in column
+    i 3 * (j 1 +) + b ?        // Get second cell in column
+    i 3 * (j 2 +) + b ?        // Get third cell in column
+    = 0 = (              // If all three are empty
+      1
+    ) /E (
+      0
+    )
+  )
+  0 i !                  // Reset row index
+  0 j !                  // Reset column index
+  0 i ? b ?              // Get top-left cell
+  4 i ? b ?              // Get center cell
+  8 i ? b ?              // Get bottom-right cell
+  = 0 = (              // If all three are empty
+    1
+  ) /E (
+    0
+  )
+  0 i !                  // Reset row index
+  0 j !                  // Reset column index
+  2 i ? b ?              // Get top-right cell
+  4 i ? b ?              // Get center cell
+  6 i ? b ?              // Get bottom-left cell
+  = 0 = (              // If all three are empty
+    1
+  ) /E (
+    0
+  )
+;
+
+// Function to find a blocking move for the opponent
+:FBM
+  0 i !                  // Initialize row index
+  3 (                    // Loop through rows
+    i 3 * 0 + b ?        // Get first cell in row
+    i 3 * 1 + b ?        // Get second cell in row
+    i 3 * 2 + b ?        // Get third cell in row
+    = 0 = (              // If all three are empty
+      1
+    ) /E (
+      0
+    )
+  )
+  0 i !                  // Reset row index
+  3 (                    // Loop through columns
+    0 j !                  // Initialize column index
+    i 3 * j + b ?        // Get first cell in column
+    i 3 * (j 1 +) + b ?        // Get second cell in column
+    i 3 * (j 2 +) + b ?        // Get third cell in column
+    = 0 = (              // If all three are empty
+      1
+    ) /E (
+      0
+    )
+  )
+  0 i !                  // Reset row index
+  0 j !                  // Reset column index
+  0 i ? b ?              // Get top-left cell
+  4 i ? b ?              // Get center cell
+  8 i ? b ?              // Get bottom-right cell
+  = 0 = (              // If all three are empty
+    1
+  ) /E (
+    0
+  )
+  0 i !                  // Reset row index
+  0 j !                  // Reset column index
+  2 i ? b ?              // Get top-right cell
+  4 i ? b ?              // Get center cell
+  6 i ? b ?              // Get bottom-left cell
+  = 0 = (              // If all three are empty
+    1
+  ) /E (
+    0
+  )
+;
+
+// Function to make a random move
+:RM
+  9 rand !                 // Generate a random number between 0 and 8
+  rand b ? = (            // Check if the cell is empty
+    rand !                  // Place the mark
+  ) /E (
+    RM                       // Try again if the cell is not empty
+  )
+;
+
+// Main loop
+:M
+  BP                       // Print the board
+  b .                      // Print current player
+  `Enter move (row col): `
+  /K                       // Read row
+  3 * +                    // Convert to board index
+  /K                       // Read column
+  +                        // Add to get final index
+  0 b ? = (              // If cell is empty
+    b !                      // Store player in cell
+    1 c !                  // Increment move count
+    W 0 = (                // Check if current player has won
+      BP                       // Print the board
+      b .                      // Print winning player
+      ` wins!`
+      /N                     // Newline
+      -1                     // Exit loop
+    ) /E (
+      9 c = (                // Check if board is full
+        BP                       // Print the board
+        `Draw!`
+        /N                     // Newline
+        -1                     // Exit loop
+      ) /E (
+        1 b !                  // Switch player
+        0 b = (                // If it's player 0's turn
+          1 b !                 // Switch to player 1
+        ) /E (
+          0 b !                 // Switch to player 0
+        )
+      )
+    )
+  ) /E (
+    `Invalid move. Try again.`
+  )
+
+  // CPU's turn
+  0 b = (                // If it's the CPU's turn
+    FWM 0 = (              // Check if the CPU can win
+      FWM !                  // Make the winning move
+    ) /E (
+      FBM 0 = (              // Check if the CPU can block
+        FBM !                  // Make the blocking move
+      ) /E (
+        RM                       // Make a random move
+      )
+    )
+    1 c !                  // Increment move count
+    W 0 = (                // Check if the CPU has won
+      BP                       // Print the board
+      b .                      // Print winning player
+      ` wins!`
+      /N                     // Newline
+      -1                     // Exit loop
+    ) /E (
+      9 c = (                // Check if board is full
+        BP                       // Print the board
+        `Draw!`
+        /N                     // Newline
+        -1                     // Exit loop
+      ) /E (
+        0 b !                 // Switch back to human player
+      )
+    )
+  )
+;
