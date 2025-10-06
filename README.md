@@ -1,3 +1,6 @@
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/fcaad56e-aa2e-44db-a753-b2fce8c5b44f" />
+
+
 ```
 Ode to the Console Game (In Mild Distress)
 
