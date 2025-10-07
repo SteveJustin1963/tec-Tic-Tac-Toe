@@ -1,0 +1,55 @@
+:I [0 0 0 0 0 0 0 0 0] b! 0 w! 0 m! ;
+
+:P `TIC-TAC-TOE (1-9)` /N
+0 i! 3(
+  0 j! 3(
+    i 3* j + v!
+    b v ? q!
+    q 0=( v 1+ 48+ /C ) /E ( q 1=( 88 /C ) /E ( 79 /C ) )
+    j 2<( 32 /C )
+    j 1+ j!
+  )
+  /N
+  i 1+ i!
+)
+;
+
+:C 0 w!
+b0? t! t 0>( b1? t=( b2? t=( t w! ) ) )
+b3? t! t 0>( b4? t=( b5? t=( t w! ) ) )
+b6? t! t 0>( b7? t=( b8? t=( t w! ) ) )
+b0? t! t 0>( b3? t=( b6? t=( t w! ) ) )
+b1? t! t 0>( b4? t=( b7? t=( t w! ) ) )
+b2? t! t 0>( b5? t=( b8? t=( t w! ) ) )
+b0? t! t 0>( b4? t=( b8? t=( t w! ) ) )
+b2? t! t 0>( b4? t=( b6? t=( t w! ) ) ) ;
+
+:U /U (
+  `Your move (1-9): ` /K 48- n!
+  n 1< n 9> | ( `Invalid` /N ) /E (
+    n 1- v!
+    b v ? 0=( 1 b v ?! /F /W ) /E ( `Taken` /N )
+  )
+) ;
+
+:R
+0 i! /U ( i 9< /W
+  b i ? 0=( 2 b i ?! C w 2=( `CPU MOVE ` i 1+ 48+ /C /N /F /W ) /E ( 0 b i ?! ) )
+  i 1+ i!
+)
+0 i! /U ( i 9< /W
+  b i ? 0=( 1 b i ?! C w 1=( 2 b i ?! `CPU MOVE ` i 1+ 48+ /C /N /F /W ) /E ( 0 b i ?! ) )
+  i 1+ i!
+)
+0 i! /U ( i 9< /W
+  b i ? 0=( 2 b i ?! `CPU MOVE ` i 1+ 48+ /C /N /F /W )
+  i 1+ i!
+) ;
+
+:G I /U (
+  P U C w 1=( `YOU WIN!` /N /F /W )
+  m 1+ m! m 9=( `DRAW!` /N /F /W )
+  R P C w 2=( `CPU WINS!` /N /F /W )
+  m 1+ m! m 9=( `DRAW!` /N /F /W )
+  /T /W
+) ;
