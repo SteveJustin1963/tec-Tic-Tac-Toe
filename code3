@@ -1,0 +1,240 @@
+:I
+  9 /A b!
+  0 i!
+  9(
+    0 b i \?!
+    i 1+ i!
+  )
+  0 p!
+  0 m!
+  /F g!
+;
+
+:P
+  `\n Current Board:\n`
+  `  0 1 2\n`
+  0 i!
+  3(
+    i . ` `
+    0 j!
+    3(
+      i 3* j+ k!
+      b k \? v!
+      v 0=(` .`)
+      v 1=(`O`)
+      v 2=(`X`)
+      ` `
+      j 1+ j!
+    )
+    `\n`
+    i 1+ i!
+  )
+  `\n`
+;
+
+:W
+  /F w!
+  0 i!
+  3(
+    i 3* k!
+    b k \? a!
+    b k 1+ \? d!
+    b k 2+ \? e!
+    a 0 > a d = & a e = & (
+      /T w!
+    )
+    i 1+ i!
+  )
+  0 j!
+  3(
+    b j \? a!
+    b j 3+ \? d!
+    b j 6+ \? e!
+    a 0 > a d = & a e = & (
+      /T w!
+    )
+    j 1+ j!
+  )
+  b 0 \? a!
+  b 4 \? d!
+  b 8 \? e!
+  a 0 > a d = & a e = & (
+    /T w!
+  )
+  b 2 \? a!
+  b 4 \? d!
+  b 6 \? e!
+  a 0 > a d = & a e = & (
+    /T w!
+  )
+  w
+;
+
+:M
+  p 0= (2) /E (1)
+;
+
+:V
+  k!
+  k 0 >= k 9 < & b k \? 0 = &
+;
+
+:D
+  k!
+  k V (
+    M b k \?!
+    m 1+ m!
+    /T
+  ) /E (
+    `Invalid move!\n`
+    /F
+  )
+;
+
+:F
+  /F f!
+  0 i!
+  9(
+    i V (
+      1 b i \?!
+      W (
+        i k!
+        /T f!
+      )
+      0 b i \?!
+    )
+    i 1+ i!
+  )
+  f
+;
+
+:B
+  /F f!
+  0 i!
+  9(
+    i V (
+      2 b i \?!
+      W (
+        i k!
+        /T f!
+      )
+      0 b i \?!
+    )
+    i 1+ i!
+  )
+  f
+;
+
+:R
+  /F f!
+  m 8 = (
+    0 i!
+    9(
+      i V (
+        i k!
+        /T f!
+      )
+      i 1+ i!
+    )
+  ) /E (
+    10(
+      9 / k!
+      k V (
+        /T f!
+      )
+    )
+    f /F = (
+      0 i!
+      9(
+        i V (
+          i k!
+          /T f!
+        )
+        i 1+ i!
+      )
+    )
+  )
+  f
+;
+
+:C
+  F (
+    `CPU finds winning move at ` k . `\n`
+    k D
+  ) /E (
+    B (
+      `CPU blocks at ` k . `\n`
+      k D
+    ) /E (
+      4 V (
+        `CPU takes center\n`
+        4 k! k D
+      ) /E (
+        R (
+          `CPU moves at ` k . `\n`
+          k D
+        )
+      )
+    )
+  )
+;
+
+:H
+  `Player X turn\n`
+  `Enter row (0-2): `
+  /K 48- r!
+  `Enter column (0-2): `
+  /K 48- c!
+  r 3* c+ k!
+  k D (
+    /T
+  ) /E (
+    /F
+  )
+;
+
+:G
+  I
+  P
+  /U (
+    p 0= (
+      H /F = (
+        `Try again\n`
+      ) /E (
+        W (
+          P
+          `Player X wins!\n`
+          /T g!
+        ) /E (
+          m 9= (
+            P
+            `Game ends in a draw!\n`
+            /T g!
+          ) /E (
+            1 p!
+          )
+        )
+      )
+    ) /E (
+      C
+      W (
+        P
+        `CPU (O) wins!\n`
+        /T g!
+      ) /E (
+        m 9= (
+          P
+          `Game ends in a draw!\n`
+          /T g!
+        ) /E (
+          0 p!
+        )
+      )
+      P
+    )
+    g /W
+  )
+  `Game over\n`
+;
+
+G
